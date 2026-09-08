@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 36e811ec8e7b8524395facba188e7ba5
+guid: ddea34ef308ecd14a9d863e00b1396da
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6548237129719764072
-    second: icon-prize-02_0
+      213: -3101137917410420900
+    second: icon-prize-03_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -128,12 +128,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: icon-prize-02_0
+      name: icon-prize-03_0
       rect:
         serializedVersion: 2
-        x: 11
+        x: 20
         y: 5
-        width: 106
+        width: 87
         height: 119
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -143,8 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 86458f5b9f200ea50800000000000000
-      internalID: 6548237129719764072
+      spriteID: c57d141ae7b86f4d0800000000000000
+      internalID: -3101137917410420900
       vertices: []
       indices: 
       edges: []
@@ -153,7 +153,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -163,7 +163,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      icon-prize-02_0: 6548237129719764072
+      icon-prize-03_0: -3101137917410420900
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

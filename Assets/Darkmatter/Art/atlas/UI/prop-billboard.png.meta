@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 12c72aca84494c047b021026a9005fb1
+guid: bdbdb7152b42ae14bb80548095709b19
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4637524859830031734
-    second: bike-lean-15_0
+      213: -2300788088804844945
+    second: prop-billboard_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -128,13 +128,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: bike-lean-15_0
+      name: prop-billboard_0
       rect:
         serializedVersion: 2
-        x: 73
-        y: 13
-        width: 132
-        height: 220
+        x: 32
+        y: 10
+        width: 191
+        height: 237
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,8 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a8aa9cce5b334afb0800000000000000
-      internalID: -4637524859830031734
+      spriteID: f6a565f5c65f110e0800000000000000
+      internalID: -2300788088804844945
       vertices: []
       indices: 
       edges: []
@@ -153,7 +153,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -163,7 +163,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      bike-lean-15_0: -4637524859830031734
+      prop-billboard_0: -2300788088804844945
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

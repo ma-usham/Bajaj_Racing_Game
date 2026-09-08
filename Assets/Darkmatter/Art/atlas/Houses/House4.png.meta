@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 122e9c9951fb33e4f9d4430806e52c87
+guid: e28780bc27aa98a4b8725163e1e82b08
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9034016941364766514
-    second: icon-prize-04_0
+      213: 2491897223048795810
+    second: House4_0
+  - first:
+      213: -917423708734587972
+    second: House4_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,12 +49,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 250
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -128,13 +131,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: icon-prize-04_0
+      name: House4_0
       rect:
         serializedVersion: 2
-        x: 11
-        y: 5
-        width: 105
-        height: 119
+        x: 0
+        y: 29
+        width: 1217
+        height: 1207
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,8 +146,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 23768ec3b864f5d70800000000000000
-      internalID: 9034016941364766514
+      spriteID: 2a61b9c525ff49220800000000000000
+      internalID: 2491897223048795810
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: House4_1
+      rect:
+        serializedVersion: 2
+        x: 88
+        y: 169
+        width: 8
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbb7a546ff7a443f0800000000000000
+      internalID: -917423708734587972
       vertices: []
       indices: 
       edges: []
@@ -153,7 +178,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -163,7 +188,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      icon-prize-04_0: 9034016941364766514
+      House4_0: 2491897223048795810
+      House4_1: -917423708734587972
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

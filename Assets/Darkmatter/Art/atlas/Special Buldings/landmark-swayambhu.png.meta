@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d26e7032360d1b9429be9450ca527eaa
+guid: 624d407ee40a5f047bfdb5e4d82cf9ad
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2968940992371751514
-    second: prop-guardrail_0
+      213: 7491351082013195513
+    second: landmark-swayambhu_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -128,13 +128,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: prop-guardrail_0
+      name: landmark-swayambhu_0
       rect:
         serializedVersion: 2
-        x: 9
-        y: 74
-        width: 237
-        height: 109
+        x: 67
+        y: 32
+        width: 386
+        height: 460
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,8 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6a50696c5e33cc6d0800000000000000
-      internalID: -2968940992371751514
+      spriteID: 9fc72234e10a6f760800000000000000
+      internalID: 7491351082013195513
       vertices: []
       indices: 
       edges: []
@@ -153,7 +153,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -163,7 +163,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      prop-guardrail_0: -2968940992371751514
+      landmark-swayambhu_0: 7491351082013195513
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

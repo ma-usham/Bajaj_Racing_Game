@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: ddea34ef308ecd14a9d863e00b1396da
+guid: 39b5bf37819dd7044a25482dce30ee29
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3101137917410420900
-    second: icon-prize-03_0
+      213: -6418176644686508666
+    second: ui-btn-primary_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,7 +46,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -128,13 +128,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: icon-prize-03_0
+      name: ui-btn-primary_0
       rect:
         serializedVersion: 2
-        x: 20
-        y: 5
-        width: 87
-        height: 119
+        x: 22
+        y: 6
+        width: 468
+        height: 149
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,8 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c57d141ae7b86f4d0800000000000000
-      internalID: -3101137917410420900
+      spriteID: 68d80cbb85e0ee6a0800000000000000
+      internalID: -6418176644686508666
       vertices: []
       indices: 
       edges: []
@@ -153,7 +153,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -163,7 +163,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      icon-prize-03_0: -3101137917410420900
+      ui-btn-primary_0: -6418176644686508666
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
