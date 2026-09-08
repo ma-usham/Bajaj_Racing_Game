@@ -3,37 +3,21 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// Drives the Select Rider panel: exactly one rider can be selected at a time, the
-/// selected rider shows its "Selected" badge, and the Let's Race button only becomes
-/// interactable once a rider has been picked.
-/// </summary>
-[DisallowMultipleComponent]
+[Serializable]
+public class Rider
+{
+    public Button riderButton;
+    public GameObject selectedImage;
+}
+
 public class RiderSelectionUI : MonoBehaviour
 {
     public const int NoRiderSelected = -1;
+    [Header("Riders")] [SerializeField] private List<Rider> riders = new List<Rider>();
+    [Header("Race")] [SerializeField] private Button letsRaceButton;
 
-    [Serializable]
-    public class Rider
-    {
-        [Tooltip("The rider card the player clicks.")]
-        public Button riderButton;
-
-        [Tooltip("Badge that is switched on while this rider is the selected one.")]
-        public GameObject selectedImage;
-    }
-
-    [Header("Riders")]
-    [SerializeField] private List<Rider> riders = new List<Rider>();
-
-    [Header("Race")]
-    [SerializeField] private Button letsRaceButton;
-
-    /// <summary>Index of the picked rider, or <see cref="NoRiderSelected"/> when none is.</summary>
     public int SelectedRiderIndex { get; private set; } = NoRiderSelected;
-
     public bool HasSelection => SelectedRiderIndex != NoRiderSelected;
-
     public int RiderCount => riders.Count;
 
     private void Awake()
@@ -59,7 +43,6 @@ public class RiderSelectionUI : MonoBehaviour
         Refresh();
     }
 
-    /// <summary>Picks a rider by index. Out of range values clear the selection.</summary>
     public void SelectRider(int index)
     {
         if (index < 0 || index >= riders.Count)
@@ -88,7 +71,6 @@ public class RiderSelectionUI : MonoBehaviour
         Refresh();
     }
 
-    /// <summary>Pushes the current selection onto the badges and the Let's Race button.</summary>
     private void Refresh()
     {
         for (int i = 0; i < riders.Count; i++)

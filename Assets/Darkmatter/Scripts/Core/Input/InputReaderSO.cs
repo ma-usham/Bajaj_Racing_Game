@@ -8,4 +8,9 @@ public class InputReaderSO : ScriptableObject,GameInput.IPlayerActions
     {
         
     }
+
+    public void OnBrake(InputAction.CallbackContext context)
+    {
+        
+    }
 }
