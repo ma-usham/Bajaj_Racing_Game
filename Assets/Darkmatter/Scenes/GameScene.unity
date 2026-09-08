@@ -1553,13 +1553,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   inputReader: {fileID: 11400000, guid: 11a6ebd9c58da5f4da8399bd1ac44dcc, type: 2}
   maxSpeed: 20
-  acceleration: 5
+  acceleration: 8
   brakeDeceleration: 10
   brakeFloor: 0.4
-  minTurnRadius: 10
+  minTurnRadius: 12
   steerResponse: 3.5
-  maxLeanAngle: 25
-  leanReferenceAccel: 50
+  maxLeanAngle: 20
+  leanResponse: 5
 --- !u!1 &601328337
 GameObject:
   m_ObjectHideFlags: 0
