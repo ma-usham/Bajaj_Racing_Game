@@ -671,8 +671,8 @@ Transform:
   m_GameObject: {fileID: 365692381}
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: -4.75, z: -0}
-  m_LocalScale: {x: 5, y: 5, z: 5}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 15, y: 15, z: 15}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -1260,7 +1260,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 34
+  field of view: 40
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -1286,13 +1286,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.008440042, y: -0.76429355, z: -0.010005137, w: 0.64473575}
-  m_LocalPosition: {x: 19.49001, y: -4.2, z: -15.869996}
+  m_LocalRotation: {x: 0.04008786, y: 0.7059696, z: -0.04008786, w: 0.7059696}
+  m_LocalPosition: {x: -12, y: 3, z: 57}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -1.5, y: -99.7, z: 0}
+  m_LocalEulerAnglesHint: {x: 6.5, y: 90, z: 0}
 --- !u!114 &519420033
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1305,8 +1305,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff61d17d928c98b4e8b4eaf814158a10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
-  target: {fileID: 592409887}
-  lateralSmoothTime: 0.25
+  target: {fileID: 592409888}
+  yawSmoothTime: 0.1
+  speedFieldOfViewGain: 15
+  fieldOfViewSmoothTime: 0.2
 --- !u!1 &550023951
 GameObject:
   m_ObjectHideFlags: 0
@@ -1530,13 +1532,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 592409885}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.008440044, y: -0.76429355, z: -0.010005139, w: 0.64473575}
-  m_LocalPosition: {x: 9.626356, y: -5.85, z: -17.515614}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -0.5, y: 1, z: 57.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: -1.5, y: -99.7, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &592409888
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1550,14 +1552,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   inputReader: {fileID: 11400000, guid: 11a6ebd9c58da5f4da8399bd1ac44dcc, type: 2}
-  maxSpeed: 40
-  acceleration: 6
-  brakeDeceleration: 25
-  steerSpeed: 12
-  steerResponse: 4
-  steerAtRest: 0.4
-  roadHalfWidth: 6
-  maxLeanAngle: 22
+  maxSpeed: 20
+  acceleration: 5
+  brakeDeceleration: 10
+  brakeFloor: 0.4
+  minTurnRadius: 10
+  steerResponse: 3.5
+  maxLeanAngle: 25
+  leanReferenceAccel: 50
 --- !u!1 &601328337
 GameObject:
   m_ObjectHideFlags: 0

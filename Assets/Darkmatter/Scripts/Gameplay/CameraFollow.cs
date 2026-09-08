@@ -1,30 +1,41 @@
 using UnityEngine;
 
 /// <summary>
-/// Chase camera for the rail racer. It keeps the framing the camera was placed with in the
-/// scene: distance down the road is tracked exactly, so the bike holds a constant screen
-/// depth no matter how fast it is going, while sideways sway is eased. That easing is what
-/// makes steering read as the bike moving across the screen before the camera recentres.
+/// Chase camera. It orbits to sit directly behind the bike's heading, holding the distance
+/// and height the camera was placed with in the scene, and opens the lens out as the bike
+/// gains speed.
 ///
-/// Rotation is deliberately never written. The bike banks by rolling about its local Z, and
-/// matching that would roll the entire view.
+/// Only the yaw is smoothed, never the position. Easing the position instead would leave the
+/// camera trailing by speed * smoothTime, so the bike would drift away as it accelerated and
+/// loom closer under braking. Smoothing the angle alone keeps the distance exact and still
+/// gives the camera its swing coming out of a turn.
 /// </summary>
 [DisallowMultipleComponent]
 public class CameraFollow : MonoBehaviour
 {
-    [SerializeField] private Transform target;
+    [SerializeField] private PlayerController target;
 
-    [Tooltip("Seconds for the camera to recentre behind the bike after a turn. 0 pins it dead centre.")]
-    [SerializeField] private float lateralSmoothTime = 0.25f;
+    [Tooltip("Seconds for the camera to swing back in line behind the bike after a turn.")]
+    [SerializeField] private float yawSmoothTime = 0.25f;
 
-    private Vector3 forwardAxis;
-    private Vector3 rightAxis;
+    [Header("Speed")]
+    [Tooltip("Degrees of field of view added at top speed, on top of whatever the camera was " +
+             "authored with. Set to 0 to hold the lens still.")]
+    [SerializeField] private float speedFieldOfViewGain = 12f;
+
+    [Tooltip("Seconds for the lens to catch up to a change in speed. Deliberately slower than " +
+             "the bike, so the widening reads as building speed rather than tracking the throttle.")]
+    [SerializeField] private float fieldOfViewSmoothTime = 0.4f;
+
+    private float pitch;
+    private float yaw;
+    private float yawVelocity;
     private float followDistance;
-    private float lateralOffset;
-    private float heightOffset;
+    private float height;
 
-    private float lateral;
-    private float lateralVelocity;
+    private Camera view;
+    private float baseFieldOfView;
+    private float fieldOfViewVelocity;
 
     private void Awake()
     {
@@ -35,18 +46,22 @@ public class CameraFollow : MonoBehaviour
             return;
         }
 
-        // Road axes taken from how the camera is aimed in the scene, flattened so its slight
-        // downward pitch does not make it climb as it tracks distance.
-        forwardAxis = Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
-        rightAxis = Vector3.Cross(Vector3.up, forwardAxis);
+        Vector3 angles = transform.eulerAngles;
+        pitch = angles.x;
+        yaw = angles.y;
 
         // Whatever framing the scene was authored with becomes the framing to hold.
-        Vector3 offset = transform.position - target.position;
-        followDistance = Vector3.Dot(offset, forwardAxis);
-        lateralOffset = Vector3.Dot(offset, rightAxis);
-        heightOffset = offset.y;
+        Vector3 offset = transform.position - target.transform.position;
+        height = offset.y;
+        followDistance = new Vector2(offset.x, offset.z).magnitude;
 
-        lateral = Vector3.Dot(transform.position, rightAxis);
+        // The authored field of view is the resting one, so the speed effect is purely additive
+        // and the scene still decides how tight the shot is at a standstill.
+        view = GetComponent<Camera>();
+        if (view != null)
+        {
+            baseFieldOfView = view.fieldOfView;
+        }
     }
 
     /// <summary>
@@ -55,16 +70,35 @@ public class CameraFollow : MonoBehaviour
     /// </summary>
     private void LateUpdate()
     {
-        Vector3 targetPosition = target.position;
+        yaw = Mathf.SmoothDampAngle(yaw, target.Heading, ref yawVelocity, yawSmoothTime);
 
-        // forwardAxis, rightAxis and up form an orthonormal basis, so the camera position can
-        // be rebuilt from its three components: locked distance, eased sway, fixed height.
-        float forward = Vector3.Dot(targetPosition, forwardAxis) + followDistance;
-        float desiredLateral = Vector3.Dot(targetPosition, rightAxis) + lateralOffset;
-        float height = targetPosition.y + heightOffset;
+        Quaternion orbit = Quaternion.Euler(0f, yaw, 0f);
+        transform.position = target.transform.position
+                             + orbit * Vector3.back * followDistance
+                             + Vector3.up * height;
+        transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
 
-        lateral = Mathf.SmoothDamp(lateral, desiredLateral, ref lateralVelocity, lateralSmoothTime);
+        UpdateFieldOfView();
+    }
 
-        transform.position = forwardAxis * forward + rightAxis * lateral + Vector3.up * height;
+    /// <summary>
+    /// Opens the lens out with speed. Widening the shot stretches the periphery past the camera
+    /// faster than the bike is actually travelling, which is what sells the speed.
+    ///
+    /// The distance is held, so a wider lens also renders the bike smaller: on screen size goes
+    /// as 1 / tan(fov / 2), which is about a quarter smaller across a 40 to 52 degree swing. If
+    /// that reads as the bike shrinking rather than the world rushing, pull followDistance in by
+    /// the same ratio as the lens opens.
+    /// </summary>
+    private void UpdateFieldOfView()
+    {
+        if (view == null || view.orthographic || speedFieldOfViewGain == 0f)
+        {
+            return;
+        }
+
+        float wanted = baseFieldOfView + speedFieldOfViewGain * Mathf.Clamp01(target.SpeedNormalized);
+        view.fieldOfView = Mathf.SmoothDamp(view.fieldOfView, wanted,
+                                            ref fieldOfViewVelocity, fieldOfViewSmoothTime);
     }
 }
