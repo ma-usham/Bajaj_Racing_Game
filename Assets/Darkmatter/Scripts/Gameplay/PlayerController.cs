@@ -106,9 +106,7 @@ public class PlayerController : MonoBehaviour
         float radius = Mathf.Max(minTurnRadius, 0.01f);
         float yawRate = steer * currentSpeed / radius; // radians per second
         heading += yawRate * Mathf.Rad2Deg * deltaTime;
-
-        // Roll towards the bank the axis is asking for. The exponential keeps the ease feeling
-        // the same whatever the frame rate, which a plain Lerp against deltaTime does not.
+        
         float targetLean = steerInput * maxLeanAngle;
         lean = Mathf.Lerp(lean, targetLean, 1f - Mathf.Exp(-leanResponse * deltaTime));
     }

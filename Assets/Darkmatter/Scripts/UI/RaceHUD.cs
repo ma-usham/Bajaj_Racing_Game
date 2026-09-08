@@ -1,3 +1,4 @@
+using System.Text;
 using TMPro;
 using UnityEngine;
 
@@ -22,11 +23,9 @@ public class RaceHUD : MonoBehaviour
 
     private float lapStartTime;
     private bool lapRunning;
-
-    // Last values pushed to the labels, so the strings are only rebuilt when the reading
-    // actually changes rather than every frame.
+    
     private int shownSpeed = -1;
-    private int shownSeconds = -1;
+    private readonly StringBuilder lapTimeBuilder = new StringBuilder(16);
 
     /// Seconds since the current lap started.
     public float LapTime => lapRunning ? Time.time - lapStartTime : 0f;
@@ -59,17 +58,13 @@ public class RaceHUD : MonoBehaviour
         UpdateSpeed();
         UpdateLapTime();
     }
-
-    /// Restarts the clock from zero. Call this from the race start, and again on each lap
-    /// once there is something on the track that can tell when a lap is done.
+    
     public void BeginLap()
     {
         lapStartTime = Time.time;
         lapRunning = true;
-        shownSeconds = -1;
     }
-
-    /// Freezes the clock where it stands, for the finish line or a pause.
+    
     public void StopLap()
     {
         lapRunning = false;
@@ -98,14 +93,31 @@ public class RaceHUD : MonoBehaviour
         {
             return;
         }
+        
+        int elapsed = Mathf.Max(0, Mathf.FloorToInt(LapTime * 1000f));
+        int minutes = elapsed / 60000;
+        int seconds = elapsed / 1000 % 60;
+        int milliseconds = elapsed % 1000;
 
-        int elapsed = Mathf.FloorToInt(LapTime);
-        if (elapsed == shownSeconds)
+        lapTimeBuilder.Clear();
+        lapTimeBuilder.Append(minutes).Append(':');
+        if (seconds < 10)
         {
-            return;
+            lapTimeBuilder.Append('0');
         }
 
-        shownSeconds = elapsed;
-        lapTimeLabel.text = $"{elapsed / 60}:{elapsed % 60:00}";
+        lapTimeBuilder.Append(seconds).Append('.');
+        if (milliseconds < 100)
+        {
+            lapTimeBuilder.Append('0');
+        }
+
+        if (milliseconds < 10)
+        {
+            lapTimeBuilder.Append('0');
+        }
+
+        lapTimeBuilder.Append(milliseconds);
+        lapTimeLabel.SetText(lapTimeBuilder);
     }
 }
