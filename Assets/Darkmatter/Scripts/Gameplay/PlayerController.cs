@@ -103,6 +103,12 @@ public class PlayerController : MonoBehaviour
 
     public bool Slowed => padRemaining > 0f && padMultiplier < 1f;
 
+    /// <summary>
+    /// True while the bike is being held on the start line. The countdown owns this: the world
+    /// is already there to look at, the rider simply cannot go yet.
+    /// </summary>
+    public bool Held { get; private set; }
+
     private void Awake()
     {
         if (inputReader == null)
@@ -135,9 +141,40 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Holds the bike where it stands, for the countdown before the flag drops. Input is
+    /// ignored and the speed is pinned at nothing, but the bike stays exactly where it was
+    /// put in the scene, so the grid slot is whatever the Bike's own transform says.
+    /// </summary>
+    public void HoldOnLine()
+    {
+        Held = true;
+        currentSpeed = 0f;
+        steer = 0f;
+        ClearSpeedModifier();
+    }
+
+    /// <summary>Hands control back. This is the flag dropping.</summary>
+    public void Release()
+    {
+        Held = false;
+    }
+
     private void Update()
     {
         float deltaTime = Time.deltaTime;
+
+        if (Held)
+        {
+            // Still drawn, just not driven: the lean is eased upright rather than left frozen
+            // mid-corner, so a bike held after a restart settles onto the line rather than
+            // sitting there banked over.
+            currentSpeed = 0f;
+            lean = Mathf.Lerp(lean, 0f, 1f - Mathf.Exp(-leanResponse * deltaTime));
+            transform.rotation = Quaternion.Euler(pitch, heading, 0f)
+                                 * Quaternion.Euler(0f, 0f, -lean);
+            return;
+        }
 
         UpdateSpeed(deltaTime);
         UpdateSteering(deltaTime);
