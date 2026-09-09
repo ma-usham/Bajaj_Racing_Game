@@ -77,7 +77,10 @@ public class RaceHUD : MonoBehaviour
             return;
         }
 
-        int reading = Mathf.RoundToInt(Mathf.Clamp01(player.SpeedNormalized) * displayTopSpeed);
+        // Not clamped to the top of the dial: a boost pad takes the bike past its own top
+        // speed, and a speedo that sticks at the headline number while it happens is the one
+        // moment the reading would be lying.
+        int reading = Mathf.RoundToInt(Mathf.Max(player.SpeedNormalized, 0f) * displayTopSpeed);
         if (reading == shownSpeed)
         {
             return;

@@ -21,6 +21,12 @@ public class PlayerController : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] private float brakeFloor = 0.35f;
 
+    [Header("Speed pads")]
+    [Tooltip("How quickly a pad's change of pace takes hold, in units per second squared. " +
+             "Deliberately sharper than the throttle and the brake, or driving over a pad " +
+             "reads as the bike accelerating normally rather than as a shove in the back.")]
+    [SerializeField] private float padResponse = 30f;
+
     [Header("Steering")]
     [Tooltip("Tightest circle the bike can carve, in units, at full lock. Smaller turns harder. " +
              "A hairpin on a 76.8 unit circuit wants roughly 6 to 10.")]
@@ -67,16 +73,35 @@ public class PlayerController : MonoBehaviour
     private float lean;
     private int trackSegment = -1;
     private float scrapeIncidence;
-
-    /// <summary>True on any frame the bike is being held against the edge of the road.</summary>
+    private float padMultiplier = 1f;
+    private float padRemaining;
+    
     public bool Scraping { get; private set; }
 
     public float CurrentSpeed => currentSpeed;
+
+    /// <summary>
+    /// Speed against the bike's own top speed. Goes above 1 while a boost pad is running,
+    /// because a boost is a top speed the bike cannot otherwise reach.
+    /// </summary>
     public float SpeedNormalized => maxSpeed > 0f ? currentSpeed / maxSpeed : 0f;
     public float DistanceTravelled => distanceTravelled;
     public float Heading => heading;
     public float Lean => lean;
     public Vector3 Forward => Quaternion.Euler(0f, heading, 0f) * Vector3.forward;
+
+    /// <summary>The circuit the bike is held to, so pads can be laid on the same one.</summary>
+    public TrackPathSO Track => track;
+
+    /// <summary>What a pad is currently doing to top speed. 1 when no pad is running.</summary>
+    public float SpeedMultiplier => padMultiplier;
+
+    /// <summary>Seconds left on the pad currently running, 0 when none is.</summary>
+    public float PadTimeRemaining => padRemaining;
+
+    public bool Boosting => padRemaining > 0f && padMultiplier > 1f;
+
+    public bool Slowed => padRemaining > 0f && padMultiplier < 1f;
 
     private void Awake()
     {
@@ -116,24 +141,12 @@ public class PlayerController : MonoBehaviour
 
         UpdateSpeed(deltaTime);
         UpdateSteering(deltaTime);
-
-        // The barrier can shave speed and turn the bike, so it runs on the move the
-        // frame wanted to make, before that move and the rotation are committed.
         transform.position = KeepOnRoad(transform.position + Forward * (currentSpeed * deltaTime),
                                         deltaTime);
         transform.rotation = Quaternion.Euler(pitch, heading, 0f)
                              * Quaternion.Euler(0f, 0f, -lean);
     }
-
-    /// <summary>
-    /// Holds the bike inside the painted road.
-    ///
-    /// A position that has crossed the barrier is put back onto it, which keeps the part
-    /// of the move that ran along the barrier and drops only the part that ran into it:
-    /// the bike scrapes along the edge instead of stopping dead against it. How square on
-    /// the hit was decides how much the barrier turns the bike, and is handed to
-    /// <see cref="UpdateSpeed"/>, which owns what a scrape costs in speed.
-    /// </summary>
+    
     private Vector3 KeepOnRoad(Vector3 position, float deltaTime)
     {
         Scraping = false;
@@ -156,26 +169,18 @@ public class PlayerController : MonoBehaviour
         }
 
         Scraping = true;
-
-        // Which way the barrier faces here. Taking it from the bike's own offset rather
-        // than from the segment keeps it right around a corner, where the barrier curves
-        // about the join between two segments instead of running straight.
+        
         Vector2 outward = strayed > 1e-4f
             ? offset / strayed
             : new Vector2(-tangent.y, tangent.x);
-
-        // The direction the barrier runs, taken the way the bike is already going: the
-        // circuit shares a straight between its outbound and return legs, so the stored
-        // tangent can point back down the road the bike is travelling.
+        
         Vector2 travel = new Vector2(Forward.x, Forward.z);
         Vector2 along = new Vector2(-outward.y, outward.x);
         if (Vector2.Dot(travel, along) < 0f)
         {
             along = -along;
         }
-
-        // 1 driving straight into the barrier, 0 running alongside it. UpdateSpeed reads
-        // this on the next frame and holds the speed down for as long as contact lasts.
+        
         scrapeIncidence = Mathf.Abs(Vector2.Dot(travel, outward));
 
         float barrierHeading = Mathf.Atan2(along.x, along.y) * Mathf.Rad2Deg;
@@ -186,19 +191,60 @@ public class PlayerController : MonoBehaviour
         return new Vector3(held.x, position.y, held.y);
     }
 
+    /// <summary>
+    /// Hands the bike a temporary ceiling on top speed: above 1 for a boost pad, below it for
+    /// a slow one. Driving over a second pad replaces the first outright rather than stacking
+    /// with it, so a slowdown always cancels a boost and two boosts in a row are one boost
+    /// held for longer, not a bike that keeps getting faster.
+    /// </summary>
+    /// <param name="multiplier">Share of <c>maxSpeed</c> the bike may now reach.</param>
+    /// <param name="duration">Seconds it lasts. The bike bleeds back to its own top speed
+    /// under acceleration once it runs out, rather than snapping back.</param>
+    public void ApplySpeedModifier(float multiplier, float duration)
+    {
+        if (multiplier <= 0f || duration <= 0f)
+        {
+            return;
+        }
+
+        padMultiplier = multiplier;
+        padRemaining = duration;
+    }
+
+    /// <summary>Drops whatever pad is running, for a restart or a finish line.</summary>
+    public void ClearSpeedModifier()
+    {
+        padMultiplier = 1f;
+        padRemaining = 0f;
+    }
+
     private void UpdateSpeed(float deltaTime)
     {
-        bool braking = inputReader != null && inputReader.IsBraking;
-        float targetSpeed = braking ? Mathf.Min(currentSpeed, brakeFloor * maxSpeed) : maxSpeed;
-        float rate = braking ? brakeDeceleration : acceleration;
+        if (padRemaining > 0f)
+        {
+            padRemaining = Mathf.Max(padRemaining - deltaTime, 0f);
+            if (padRemaining == 0f)
+            {
+                padMultiplier = 1f;
+            }
+        }
 
-        // A scrape is a ceiling on speed for as long as the bike is against the barrier,
-        // not a one-off bite taken out of it: taking the speed off in the barrier code
-        // alone left the throttle to put it back here the next frame, and acceleration
-        // outruns the scrape at any angle short of head on, so the throttle simply won.
-        // Contact sets the ceiling; how square on the contact is sets how fast the bike
-        // falls to it, and running exactly alongside is a rate of zero, which holds the
-        // speed where it is rather than letting it climb back while grinding.
+        bool padRunning = padRemaining > 0f;
+        bool braking = inputReader != null && inputReader.IsBraking;
+
+        // A pad moves the ceiling rather than taking a one-off bite out of the speed, for the
+        // same reason a scrape does: a bite is handed straight back by the throttle on the
+        // next frame. Reaching that ceiling is deliberately quicker than the throttle would
+        // manage, or a boost reads as ordinary acceleration and a slowdown as coasting.
+        float targetSpeed = braking
+            ? Mathf.Min(currentSpeed, brakeFloor * maxSpeed)
+            : maxSpeed * padMultiplier;
+        float rate = braking ? brakeDeceleration : acceleration;
+        if (padRunning && !braking)
+        {
+            rate = Mathf.Max(rate, padResponse);
+        }
+
         if (Scraping)
         {
             float scraped = scrapeSpeedFloor * maxSpeed;
@@ -226,11 +272,7 @@ public class PlayerController : MonoBehaviour
         float targetLean = steerInput * maxLeanAngle;
         lean = Mathf.Lerp(lean, targetLean, 1f - Mathf.Exp(-leanResponse * deltaTime));
     }
-
-    /// <summary>
-    /// Draws the baked centreline and the barrier either side of it, so the ribbon can be
-    /// checked against the painted road without entering play mode. Select the bike to see it.
-    /// </summary>
+    
     private void OnDrawGizmosSelected()
     {
         if (track == null || !track.IsValid)
