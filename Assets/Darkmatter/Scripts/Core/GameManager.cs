@@ -1,20 +1,26 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Takes the game from the menu to the flag.
 ///
-/// Three states, and only one way through them. The menu is up and the gameplay object is
-/// switched off entirely, so nothing in the world is ticking behind it. Picking a rider and
-/// hitting Let's Ride switches the world on and starts the countdown, and the bike is held on
-/// the line for it: the world is already there to look at, the rider simply cannot go yet.
-/// The flag drops on GO, which is also when the lap timer starts, so the clock and the throttle
-/// are released by the same line of code and cannot drift apart.
+/// Four states, and one way round them. The menu is up and the gameplay object is switched off
+/// entirely, so nothing in the world is ticking behind it. Picking a rider and hitting Let's
+/// Ride switches the world on and starts the countdown, and the bike is held on the line for
+/// it: the world is already there to look at, the rider simply cannot go yet. The flag drops on
+/// GO, which is also when the lap timer and the lap counter start, so the clock, the throttle
+/// and the lap are released by the same few lines and cannot drift apart. A finished lap parks
+/// the bike and puts the time up, and Race Again goes back to the countdown.
 ///
-/// The Let's Ride button is wired up here rather than in the inspector. A listener added in
-/// code cannot quietly come unstuck when the button is renamed or the scene is merged, and it
-/// keeps who-starts-the-race in one file instead of split between a script and a click handler.
+/// Race Again is a restart, not a reload: the world, the props and the pads all stay exactly
+/// where they are, and only the bike, the clock and the lap are put back to the start. That
+/// keeps a retry instant, which is what makes a one lap circuit worth retrying.
+///
+/// Both buttons are wired up here rather than in the inspector. A listener added in code cannot
+/// quietly come unstuck when a button is renamed or a scene is merged, and it keeps who-starts-
+/// the-race in one file instead of split between a script and a click handler.
 /// </summary>
 [DisallowMultipleComponent]
 public class GameManager : MonoBehaviour
@@ -29,6 +35,9 @@ public class GameManager : MonoBehaviour
 
         /// <summary>Flag dropped.</summary>
         Racing,
+
+        /// <summary>Lap in the bag, results up, bike parked.</summary>
+        LapComplete,
     }
 
     [Header("Screens")]
@@ -51,6 +60,24 @@ public class GameManager : MonoBehaviour
     [Tooltip("Optional. The lap clock is started on GO rather than when the world appears, so " +
              "the countdown is not on the rider's time.")]
     [SerializeField] private RaceHUD hud;
+
+    [Tooltip("Optional. Counts the bike round the circuit and says when a lap is done. " +
+             "Without it the race simply never ends.")]
+    [SerializeField] private LapTracker lapTracker;
+
+    [Header("Lap complete")]
+    [Tooltip("Shown when a lap is finished. Switched off the rest of the time.")]
+    [SerializeField] private GameObject lapCompletePanel;
+
+    [Tooltip("Optional. The lap time is written here, in the same m:ss.mmm the HUD uses.")]
+    [SerializeField] private TextMeshProUGUI lapResultLabel;
+
+    [Tooltip("Optional. The fastest the bike went on the lap, in the same units as the speedo.")]
+    [SerializeField] private TextMeshProUGUI topSpeedLabel;
+
+    [Tooltip("Puts the bike back on the grid and runs the countdown again. Like Let's Ride, " +
+             "this needs no click handler of its own.")]
+    [SerializeField] private Button raceAgainButton;
 
     [Header("Countdown")]
     [Tooltip("Where the numbers are drawn. Switched off between races.")]
@@ -112,6 +139,16 @@ public class GameManager : MonoBehaviour
                              "race. Call StartRace from somewhere, or assign the rider selection.", this);
         }
 
+        if (lapTracker != null)
+        {
+            lapTracker.LapCompleted += OnLapCompleted;
+        }
+
+        if (raceAgainButton != null)
+        {
+            raceAgainButton.onClick.AddListener(RaceAgain);
+        }
+
         ShowMenu();
     }
 
@@ -120,6 +157,16 @@ public class GameManager : MonoBehaviour
         if (riderSelection != null && riderSelection.RaceButton != null)
         {
             riderSelection.RaceButton.onClick.RemoveListener(StartRace);
+        }
+
+        if (raceAgainButton != null)
+        {
+            raceAgainButton.onClick.RemoveListener(RaceAgain);
+        }
+
+        if (lapTracker != null)
+        {
+            lapTracker.LapCompleted -= OnLapCompleted;
         }
     }
 
@@ -139,6 +186,12 @@ public class GameManager : MonoBehaviour
         gameplay.SetActive(false);
         mainMenu.SetActive(true);
         HideCountdown();
+        ShowResults(false);
+
+        if (lapTracker != null)
+        {
+            lapTracker.ResetLaps();
+        }
     }
 
     /// <summary>
@@ -152,13 +205,47 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        State = RaceState.Countdown;
         mainMenu.SetActive(false);
 
-        // Switched on before the bike is held, because this is the frame the bike's own Awake
-        // and OnEnable run in. Holding it first would be writing to a component that has not
-        // started yet.
+        // Switched on before anything is asked of the bike, because this is the frame the
+        // bike's own Awake and OnEnable run in. Holding it first would be writing to a
+        // component that has not started yet.
         gameplay.SetActive(true);
+
+        BeginCountdown();
+    }
+
+    /// <summary>
+    /// Back to the grid for another go. Wired to the Race Again button on the results panel.
+    /// The world stays up: only the bike, the clock and the lap are put back to the start, so
+    /// this is a restart rather than a reload.
+    /// </summary>
+    public void RaceAgain()
+    {
+        if (State != RaceState.LapComplete)
+        {
+            return;
+        }
+
+        ShowResults(false);
+
+        if (player != null)
+        {
+            player.ReturnToLine();
+        }
+
+        BeginCountdown();
+    }
+
+    /// <summary>Holds the bike, stops the clocks, and runs the numbers down.</summary>
+    private void BeginCountdown()
+    {
+        if (countdown != null)
+        {
+            StopCoroutine(countdown);
+        }
+
+        State = RaceState.Countdown;
 
         if (player != null)
         {
@@ -170,7 +257,66 @@ public class GameManager : MonoBehaviour
             hud.StopLap();
         }
 
+        if (lapTracker != null)
+        {
+            lapTracker.Stop();
+        }
+
         countdown = StartCoroutine(RunCountdown());
+    }
+
+    /// <summary>
+    /// The lap is in. Everything is stopped before the panel goes up, and the time is read
+    /// before the clock is: <see cref="RaceHUD.LapTime"/> reads zero once the lap is stopped.
+    /// </summary>
+    private void OnLapCompleted(int lapsCompleted)
+    {
+        if (State != RaceState.Racing)
+        {
+            return;
+        }
+
+        State = RaceState.LapComplete;
+
+        // Both readings are taken before anything is stopped: the clock reads zero once the
+        // lap is stopped, and the bike forgets its best speed the moment it is held.
+        float lapTime = hud != null ? hud.LapTime : 0f;
+        float topSpeed = player != null ? player.TopSpeedNormalized : 0f;
+
+        if (player != null)
+        {
+            player.HoldOnLine();
+        }
+
+        if (hud != null)
+        {
+            hud.StopLap();
+        }
+
+        if (lapTracker != null)
+        {
+            lapTracker.Stop();
+        }
+
+        if (lapResultLabel != null)
+        {
+            lapResultLabel.text = RaceHUD.FormatTime(lapTime);
+        }
+
+        if (topSpeedLabel != null && hud != null)
+        {
+            topSpeedLabel.text = hud.FormatSpeed(topSpeed);
+        }
+
+        ShowResults(true);
+    }
+
+    private void ShowResults(bool shown)
+    {
+        if (lapCompletePanel != null)
+        {
+            lapCompletePanel.SetActive(shown);
+        }
     }
 
     private IEnumerator RunCountdown()
@@ -190,6 +336,11 @@ public class GameManager : MonoBehaviour
         if (hud != null)
         {
             hud.BeginLap();
+        }
+
+        if (lapTracker != null)
+        {
+            lapTracker.Begin();
         }
 
         State = RaceState.Racing;

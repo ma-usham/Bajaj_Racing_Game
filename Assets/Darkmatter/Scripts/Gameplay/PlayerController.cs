@@ -75,6 +75,9 @@ public class PlayerController : MonoBehaviour
     private float scrapeIncidence;
     private float padMultiplier = 1f;
     private float padRemaining;
+    private Vector3 startPosition;
+    private float startHeading;
+    private float topSpeed;
     
     public bool Scraping { get; private set; }
 
@@ -104,6 +107,12 @@ public class PlayerController : MonoBehaviour
     public bool Slowed => padRemaining > 0f && padMultiplier < 1f;
 
     /// <summary>
+    /// The fastest the bike has gone since it was last put on the line, against its own top
+    /// speed. Goes above 1 if that happened on a boost pad, same as <see cref="SpeedNormalized"/>.
+    /// </summary>
+    public float TopSpeedNormalized => maxSpeed > 0f ? topSpeed / maxSpeed : 0f;
+
+    /// <summary>
     /// True while the bike is being held on the start line. The countdown owns this: the world
     /// is already there to look at, the rider simply cannot go yet.
     /// </summary>
@@ -123,6 +132,11 @@ public class PlayerController : MonoBehaviour
         Vector3 angles = transform.rotation.eulerAngles;
         pitch = angles.x;
         heading = angles.y;
+
+        // The grid slot is wherever the bike was placed in the scene, remembered here so a
+        // restart needs nothing authored anywhere else.
+        startPosition = transform.position;
+        startHeading = heading;
     }
 
     private void OnEnable()
@@ -151,6 +165,7 @@ public class PlayerController : MonoBehaviour
         Held = true;
         currentSpeed = 0f;
         steer = 0f;
+        topSpeed = 0f;
         ClearSpeedModifier();
     }
 
@@ -158,6 +173,28 @@ public class PlayerController : MonoBehaviour
     public void Release()
     {
         Held = false;
+    }
+
+    /// <summary>
+    /// Puts the bike back on the grid slot it was placed at in the scene, facing the way it
+    /// was placed, with nothing carried over from the last run: no speed, no lean, no pad, and
+    /// no memory of which bit of road it was last on. That last one matters, because the bike
+    /// has just been moved without driving there, and the barrier's search starts from where
+    /// it last saw it.
+    /// </summary>
+    public void ReturnToLine()
+    {
+        heading = startHeading;
+        currentSpeed = 0f;
+        steer = 0f;
+        lean = 0f;
+        distanceTravelled = 0f;
+        trackSegment = -1;
+        Scraping = false;
+        scrapeIncidence = 0f;
+        ClearSpeedModifier();
+
+        transform.SetPositionAndRotation(startPosition, Quaternion.Euler(pitch, heading, 0f));
     }
 
     private void Update()
@@ -295,6 +332,11 @@ public class PlayerController : MonoBehaviour
 
         currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, rate * deltaTime);
         distanceTravelled += currentSpeed * deltaTime;
+
+        if (currentSpeed > topSpeed)
+        {
+            topSpeed = currentSpeed;
+        }
     }
     
     private void UpdateSteering(float deltaTime)

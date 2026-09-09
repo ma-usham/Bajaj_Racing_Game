@@ -80,7 +80,7 @@ public class RaceHUD : MonoBehaviour
         // Not clamped to the top of the dial: a boost pad takes the bike past its own top
         // speed, and a speedo that sticks at the headline number while it happens is the one
         // moment the reading would be lying.
-        int reading = Mathf.RoundToInt(Mathf.Max(player.SpeedNormalized, 0f) * displayTopSpeed);
+        int reading = Reading(player.SpeedNormalized);
         if (reading == shownSpeed)
         {
             return;
@@ -96,31 +96,56 @@ public class RaceHUD : MonoBehaviour
         {
             return;
         }
-        
-        int elapsed = Mathf.Max(0, Mathf.FloorToInt(LapTime * 1000f));
+
+        Format(lapTimeBuilder, LapTime);
+        lapTimeLabel.SetText(lapTimeBuilder);
+    }
+
+    /// <summary>
+    /// A 0 to 1 speed written the way the speedo writes it, units and all. Public so the
+    /// results panel reads off the same dial instead of inventing its own conversion.
+    /// </summary>
+    public string FormatSpeed(float normalized) => Reading(normalized) + speedSuffix;
+
+    private int Reading(float normalized) =>
+        Mathf.RoundToInt(Mathf.Max(normalized, 0f) * displayTopSpeed);
+
+    /// <summary>
+    /// A time as m:ss.mmm. Public and static because the results panel shows the same clock
+    /// the HUD does, and two spellings of the same time is how they end up disagreeing.
+    /// </summary>
+    public static string FormatTime(float seconds)
+    {
+        StringBuilder builder = new StringBuilder(16);
+        Format(builder, seconds);
+        return builder.ToString();
+    }
+
+    private static void Format(StringBuilder builder, float seconds)
+    {
+        int elapsed = Mathf.Max(0, Mathf.FloorToInt(seconds * 1000f));
         int minutes = elapsed / 60000;
-        int seconds = elapsed / 1000 % 60;
+        int wholeSeconds = elapsed / 1000 % 60;
         int milliseconds = elapsed % 1000;
 
-        lapTimeBuilder.Clear();
-        lapTimeBuilder.Append(minutes).Append(':');
-        if (seconds < 10)
+        builder.Clear();
+        builder.Append(minutes).Append(':');
+        if (wholeSeconds < 10)
         {
-            lapTimeBuilder.Append('0');
+            builder.Append('0');
         }
 
-        lapTimeBuilder.Append(seconds).Append('.');
+        builder.Append(wholeSeconds).Append('.');
         if (milliseconds < 100)
         {
-            lapTimeBuilder.Append('0');
+            builder.Append('0');
         }
 
         if (milliseconds < 10)
         {
-            lapTimeBuilder.Append('0');
+            builder.Append('0');
         }
 
-        lapTimeBuilder.Append(milliseconds);
-        lapTimeLabel.SetText(lapTimeBuilder);
+        builder.Append(milliseconds);
     }
 }
