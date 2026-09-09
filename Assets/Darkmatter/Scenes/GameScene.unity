@@ -2916,6 +2916,11 @@ MonoBehaviour:
   steerResponse: 3.5
   maxLeanAngle: 20
   leanResponse: 5
+  track: {fileID: 11400000, guid: 4d81b0a67c2e49f4b8d3e5a1f062c7d9, type: 2}
+  barrierMargin: -1
+  scrapeDeceleration: 5
+  scrapeSpeedFloor: 0.45
+  scrapeSteer: 10
 --- !u!1 &594916108
 GameObject:
   m_ObjectHideFlags: 0
@@ -8433,7 +8438,7 @@ GameObject:
   - component: {fileID: 1721747687}
   - component: {fileID: 1721747686}
   m_Layer: 0
-  m_Name: Square
+  m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
