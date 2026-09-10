@@ -58,6 +58,6 @@ MonoBehaviour:
   - {x: -34.699566, y: 59.930267}
   - {x: -16.1628, y: 59.930267}
   - {x: -2.9088306, y: 60.05073}
-  halfWidth: 7
+  halfWidth: 6.5
   closedLoop: 1
   lapLength: 618.79565

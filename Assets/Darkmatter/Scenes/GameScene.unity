@@ -1371,6 +1371,93 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.OnScreen.OnScreenButton
   m_ControlPath: <Keyboard>/a
+--- !u!1001 &267583888
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 592409887}
+    m_Modifications:
+    - target: {fileID: 3608732300981117893, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+      propertyPath: m_Name
+      value: SF_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3608732300981117893, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0.19
+      objectReference: {fileID: 0}
+    - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -4.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 5.22
+      objectReference: {fileID: 0}
+    - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: -90
+      objectReference: {fileID: 0}
+    - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3608732300981117893, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 267583891}
+  m_SourcePrefab: {fileID: 100100000, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+--- !u!4 &267583889 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+  m_PrefabInstance: {fileID: 267583888}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &267583890 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3608732300981117893, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
+  m_PrefabInstance: {fileID: 267583888}
+  m_PrefabAsset: {fileID: 0}
+--- !u!210 &267583891
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 267583890}
+  m_Enabled: 1
+  m_SortingLayerID: 1870216575
+  m_SortingLayer: 2
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
 --- !u!1 &271550615
 GameObject:
   m_ObjectHideFlags: 0
@@ -3468,7 +3555,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 7e20935428c77e642b7a562f15d50723, type: 3}
+  m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -5192,6 +5279,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 589171486}
+  - {fileID: 267583889}
   m_Father: {fileID: 400688367}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
 --- !u!114 &592409888
@@ -5218,6 +5306,11 @@ MonoBehaviour:
   leanResponse: 5
   wheels: {fileID: 830000002}
   wheelPlaybackAtTopSpeed: 5
+  engineLoop: {fileID: 8300000, guid: c11079e88c329ea4db20aa48f82ab57a, type: 3}
+  enginePitchIdle: 0.7
+  enginePitchAtTopSpeed: 1.3
+  engineVolumeIdle: 0.4
+  engineVolumeAtTopSpeed: 0.8
   track: {fileID: 11400000, guid: 4d81b0a67c2e49f4b8d3e5a1f062c7d9, type: 2}
   barrierMargin: -1
   scrapeDeceleration: 5
@@ -44736,8 +44829,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   musicSource: {fileID: 471572967}
   sfxSource: {fileID: 1981998633}
-  backgroundMusic: {fileID: 0}
-  musicVolume: 0.7
+  engineSource: {fileID: 0}
+  backgroundMusic: {fileID: 8300000, guid: 7e20935428c77e642b7a562f15d50723, type: 3}
+  musicVolume: 0.6
   sfxVolume: 1
 --- !u!4 &1643163766
 Transform:

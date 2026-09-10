@@ -59,6 +59,32 @@ namespace Darkmatter.Gameplay
         [SerializeField]
         private float wheelPlaybackAtTopSpeed = 5f;
 
+        [Header("Engine")]
+        [Tooltip("Optional. Looping engine note. Played through the AudioManager's engine " +
+                 "source, so the sfx volume governs it along with everything else.")]
+        [SerializeField]
+        private AudioClip engineLoop;
+
+        [Tooltip("Pitch at a standstill, and at the bike's own top speed. A boost pad revs past " +
+                 "the top one, the same way it drives the wheels past their top speed.")]
+        [Min(0.05f)]
+        [SerializeField]
+        private float enginePitchIdle = 0.7f;
+
+        [Min(0.05f)]
+        [SerializeField]
+        private float enginePitchAtTopSpeed = 2f;
+
+        [Tooltip("Volume at a standstill, and at top speed. Unlike the pitch, a boost pad does " +
+                 "not push this past the top one.")]
+        [Range(0f, 1f)]
+        [SerializeField]
+        private float engineVolumeIdle = 0.4f;
+
+        [Range(0f, 1f)]
+        [SerializeField]
+        private float engineVolumeAtTopSpeed = 1f;
+
         [Header("Barrier")]
         [Tooltip("Baked centreline of the circuit. The road is only pixels on the Track sprite, " +
                  "so without this the bike has nothing to tell it where the asphalt ends.")]
@@ -95,6 +121,7 @@ namespace Darkmatter.Gameplay
         private float steer;
         private float lean;
         private float scrapeIncidence;
+        private bool engineRunning;
         private readonly TrackBarrier barrier = new TrackBarrier();
         private readonly SpeedModifier pad = new SpeedModifier();
         private Vector3 startPosition;
@@ -162,6 +189,35 @@ namespace Darkmatter.Gameplay
             }
         }
 
+        private void OnDisable()
+        {
+            StopEngine();
+        }
+
+        /// <summary>Starts the engine note. The race owns when, this owns how.</summary>
+        public void StartEngine()
+        {
+            if (engineLoop == null || AudioManager.Instance == null)
+            {
+                return;
+            }
+
+            engineRunning = true;
+            UpdateEngine();
+            AudioManager.Instance.PlayEngine(engineLoop);
+        }
+
+        /// <summary>Cuts the engine dead. Wanted the moment a lap is in, and on the way out.</summary>
+        public void StopEngine()
+        {
+            engineRunning = false;
+
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopEngine();
+            }
+        }
+
         public void HoldOnLine()
         {
             Held = true;
@@ -204,6 +260,7 @@ namespace Darkmatter.Gameplay
                 transform.rotation = Quaternion.Euler(pitch, heading, 0f)
                                      * Quaternion.Euler(0f, 0f, -lean);
                 SpinWheels();
+                UpdateEngine();
                 return;
             }
 
@@ -214,6 +271,7 @@ namespace Darkmatter.Gameplay
             transform.rotation = Quaternion.Euler(pitch, heading, 0f)
                                  * Quaternion.Euler(0f, 0f, -lean);
             SpinWheels();
+            UpdateEngine();
         }
 
         private void SpinWheels()
@@ -224,6 +282,23 @@ namespace Darkmatter.Gameplay
             }
 
             wheels.speed = wheelPlaybackAtTopSpeed * SpeedNormalized;
+        }
+
+        /// <summary>
+        /// Pitch is unclamped so a boost pad revs past the top note; volume is not, or a boost
+        /// would clip.
+        /// </summary>
+        private void UpdateEngine()
+        {
+            if (!engineRunning || AudioManager.Instance == null)
+            {
+                return;
+            }
+
+            float revs = Mathf.Max(SpeedNormalized, 0f);
+            AudioManager.Instance.SetEngine(
+                Mathf.LerpUnclamped(enginePitchIdle, enginePitchAtTopSpeed, revs),
+                Mathf.Lerp(engineVolumeIdle, engineVolumeAtTopSpeed, revs));
         }
 
         private Vector3 KeepOnRoad(Vector3 position, float deltaTime)

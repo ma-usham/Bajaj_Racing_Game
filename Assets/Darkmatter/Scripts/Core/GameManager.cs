@@ -249,6 +249,7 @@ namespace Darkmatter.Core
             if (player != null)
             {
                 player.HoldOnLine();
+                player.StartEngine();
             }
 
 
@@ -332,6 +333,7 @@ namespace Darkmatter.Core
             if (player != null)
             {
                 player.HoldOnLine();
+                player.StopEngine();
             }
 
             if (hud != null)
