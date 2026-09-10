@@ -1,3 +1,4 @@
+using System.Collections;
 using Darkmatter.Gameplay;
 using Darkmatter.UI;
 using TMPro;
@@ -69,6 +70,18 @@ namespace Darkmatter.Core
         [Tooltip("Optional. The fastest the bike went on the lap, in the same units as the speedo.")] [SerializeField]
         private TextMeshProUGUI topSpeedLabel;
 
+        [Tooltip("Optional. Fired the moment the lap is in, with the screen to itself before " +
+                 "the results panel goes up. Its own Play On Awake is overruled, so it does not " +
+                 "go off when the world appears.")]
+        [SerializeField]
+        private ParticleSystem confetti;
+
+        [Tooltip("Seconds the confetti gets before the results appear over it. 0 puts them up " +
+                 "straight away.")]
+        [Min(0f)]
+        [SerializeField]
+        private float resultsDelay = 1f;
+
         [Tooltip("Puts the bike back on the grid and runs the countdown again. Like Let's Ride, " +
                  "this needs no click handler of its own.")]
         [SerializeField]
@@ -92,6 +105,8 @@ namespace Darkmatter.Core
         private RaceCountdown countdown;
 
         public RaceState State { get; private set; } = RaceState.Menu;
+
+        private Coroutine celebration;
 
         private void Awake()
         {
@@ -177,6 +192,7 @@ namespace Darkmatter.Core
         public void ShowMenu()
         {
             StopCountdown();
+            StopCelebrating();
 
             State = RaceState.Menu;
             SetDrivingEnabled(false);
@@ -245,6 +261,7 @@ namespace Darkmatter.Core
         {
             State = RaceState.Countdown;
             SetDrivingEnabled(false);
+            StopCelebrating();
 
             if (player != null)
             {
@@ -356,7 +373,47 @@ namespace Darkmatter.Core
                 topSpeedLabel.text = hud.FormatSpeed(topSpeed);
             }
 
+            celebration = StartCoroutine(Celebrate());
+        }
+
+        /// <summary>
+        /// Confetti first, results after. The panel fills the screen, so putting it up on the
+        /// same frame would bury the confetti under it before any of it was seen.
+        /// </summary>
+        private IEnumerator Celebrate()
+        {
+            if (confetti != null)
+            {
+                confetti.gameObject.SetActive(true);
+                confetti.Clear(true);
+                confetti.Play(true);
+            }
+
+            if (resultsDelay > 0f)
+            {
+                yield return new WaitForSeconds(resultsDelay);
+            }
+
             ShowResults(true);
+            celebration = null;
+        }
+
+        /// <summary>
+        /// Drops the celebration on the floor, for the ways out of the results that do not go
+        /// through waiting for them.
+        /// </summary>
+        private void StopCelebrating()
+        {
+            if (celebration != null)
+            {
+                StopCoroutine(celebration);
+                celebration = null;
+            }
+
+            if (confetti != null)
+            {
+                confetti.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            }
         }
 
         private void ShowResults(bool shown)
