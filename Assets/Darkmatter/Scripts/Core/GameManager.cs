@@ -6,21 +6,23 @@ using UnityEngine.UI;
 /// <summary>
 /// Takes the game from the menu to the flag.
 ///
-/// Four states, and one way round them. The menu is up and the gameplay object is switched off
+/// Five states, and one way round them. The menu is up and the gameplay object is switched off
 /// entirely, so nothing in the world is ticking behind it. Picking a rider and hitting Let's
 /// Ride switches the world on and starts the countdown, and the bike is held on the line for
 /// it: the world is already there to look at, the rider simply cannot go yet. The flag drops on
 /// GO, which is also when the lap timer and the lap counter start, so the clock, the throttle
 /// and the lap are released by the same few lines and cannot drift apart. A finished lap parks
-/// the bike and puts the time up, and Race Again goes back to the countdown.
+/// the bike and puts the time up, and Race Again goes back to the countdown. Claim Your Prize
+/// swaps the results for the prize form, which is a screen in its own right rather than a
+/// window over the results, because it fills exactly the space they do.
 ///
 /// Race Again is a restart, not a reload: the world, the props and the pads all stay exactly
 /// where they are, and only the bike, the clock and the lap are put back to the start. That
 /// keeps a retry instant, which is what makes a one lap circuit worth retrying.
 ///
-/// Both buttons are wired up here rather than in the inspector. A listener added in code cannot
-/// quietly come unstuck when a button is renamed or a scene is merged, and it keeps who-starts-
-/// the-race in one file instead of split between a script and a click handler.
+/// All three buttons are wired up here rather than in the inspector. A listener added in code
+/// cannot quietly come unstuck when a button is renamed or a scene is merged, and it keeps
+/// who-starts-the-race in one file instead of split between a script and a click handler.
 /// </summary>
 [DisallowMultipleComponent]
 public class GameManager : MonoBehaviour
@@ -38,6 +40,9 @@ public class GameManager : MonoBehaviour
 
         /// <summary>Lap in the bag, results up, bike parked.</summary>
         LapComplete,
+
+        /// <summary>Prize form up in place of the results, bike still parked.</summary>
+        ClaimingPrize,
     }
 
     [Header("Screens")]
@@ -83,6 +88,15 @@ public class GameManager : MonoBehaviour
     [Tooltip("Puts the bike back on the grid and runs the countdown again. Like Let's Ride, " +
              "this needs no click handler of its own.")]
     [SerializeField] private Button raceAgainButton;
+
+    [Header("Prize")]
+    [Tooltip("Takes the results away and puts the prize form up. Like the other two, this " +
+             "needs no click handler of its own.")]
+    [SerializeField] private Button claimPrizeButton;
+
+    [Tooltip("The name, phone number and reward code form. Switched off until the prize is " +
+             "claimed, and off again whenever the game goes back to the menu or the grid.")]
+    [SerializeField] private GameObject claimPrizePanel;
 
     [Header("Countdown")]
     [Tooltip("Where the numbers are drawn. Switched off between races.")]
@@ -162,6 +176,11 @@ public class GameManager : MonoBehaviour
             raceAgainButton.onClick.AddListener(RaceAgain);
         }
 
+        if (claimPrizeButton != null)
+        {
+            claimPrizeButton.onClick.AddListener(ClaimPrize);
+        }
+
         ShowMenu();
     }
 
@@ -175,6 +194,11 @@ public class GameManager : MonoBehaviour
         if (raceAgainButton != null)
         {
             raceAgainButton.onClick.RemoveListener(RaceAgain);
+        }
+
+        if (claimPrizeButton != null)
+        {
+            claimPrizeButton.onClick.RemoveListener(ClaimPrize);
         }
 
         if (lapTracker != null)
@@ -200,6 +224,7 @@ public class GameManager : MonoBehaviour
         mainMenu.SetActive(true);
         HideCountdown();
         ShowResults(false);
+        ShowPrizeClaim(false);
 
         if (lapTracker != null)
         {
@@ -241,6 +266,7 @@ public class GameManager : MonoBehaviour
         }
 
         ShowResults(false);
+        ShowPrizeClaim(false);
 
         if (player != null)
         {
@@ -248,6 +274,27 @@ public class GameManager : MonoBehaviour
         }
 
         BeginCountdown();
+    }
+
+    /// <summary>
+    /// Swaps the results for the prize form. Wired to the Claim Your Prize button on the
+    /// results panel.
+    ///
+    /// The results go away rather than sitting behind the form. Both panels fill the screen, so
+    /// leaving the results up would leave Race Again underneath the form, live to a click the
+    /// rider cannot see themselves making.
+    /// </summary>
+    public void ClaimPrize()
+    {
+        if (State != RaceState.LapComplete)
+        {
+            return;
+        }
+
+        State = RaceState.ClaimingPrize;
+
+        ShowResults(false);
+        ShowPrizeClaim(true);
     }
 
     /// <summary>Holds the bike, stops the clocks, and runs the numbers down.</summary>
@@ -338,6 +385,14 @@ public class GameManager : MonoBehaviour
         if (lapCompletePanel != null)
         {
             lapCompletePanel.SetActive(shown);
+        }
+    }
+
+    private void ShowPrizeClaim(bool shown)
+    {
+        if (claimPrizePanel != null)
+        {
+            claimPrizePanel.SetActive(shown);
         }
     }
 
