@@ -22,8 +22,18 @@ namespace Darkmatter.UI
 
         [Header("Lap time")] [SerializeField] private TextMeshProUGUI lapTimeLabel;
 
+        [Header("Wrong way")]
+        [Tooltip("Optional. Switched on while the bike is pointed back down the circuit, and off " +
+                 "the rest of the time. Only while the lap is running, so the grid and the " +
+                 "finish are left alone whichever way the bike ends up facing.")]
+        [SerializeField]
+        private TextMeshProUGUI wrongWayLabel;
+
         private float lapStartTime;
         private bool lapRunning;
+
+        private int segmentHint = -1;
+        private bool wrongWay;
 
         private int shownSpeed = -1;
         private readonly StringBuilder lapTimeBuilder = new StringBuilder(16);
@@ -47,12 +57,18 @@ namespace Darkmatter.UI
             {
                 Debug.LogError($"{name}: no lap time label assigned.", this);
             }
+
+            if (wrongWayLabel != null)
+            {
+                wrongWayLabel.gameObject.SetActive(false);
+            }
         }
 
         private void Update()
         {
             UpdateSpeed();
             UpdateLapTime();
+            ShowWrongWay(lapRunning && FacingBackwards());
         }
 
         public void BeginLap()
@@ -64,6 +80,7 @@ namespace Darkmatter.UI
         public void StopLap()
         {
             lapRunning = false;
+            ShowWrongWay(false);
         }
 
         private void UpdateSpeed()
@@ -93,6 +110,45 @@ namespace Darkmatter.UI
 
             Format(lapTimeBuilder, LapTime);
             lapTimeLabel.SetText(lapTimeBuilder);
+        }
+
+
+        /// <summary>
+        /// The bike has no reverse, so riding the wrong way is a matter of where it is pointed
+        /// rather than which way it is moving: past a right angle to the racing direction baked
+        /// into the circuit and it is heading back the way it came. Held on the line does not
+        /// count, whatever the bike is facing.
+        /// </summary>
+        private bool FacingBackwards()
+        {
+            if (player == null || player.Held)
+            {
+                return false;
+            }
+
+            TrackPathSO road = player.Track;
+            if (road == null || !road.IsValid)
+            {
+                return false;
+            }
+
+            Vector3 position = player.transform.position;
+            segmentHint = road.Sample(new Vector2(position.x, position.z), segmentHint,
+                out _, out Vector2 along);
+
+            Vector3 forward = player.Forward;
+            return Vector2.Dot(new Vector2(forward.x, forward.z), along) < 0f;
+        }
+
+        private void ShowWrongWay(bool shown)
+        {
+            if (wrongWayLabel == null || shown == wrongWay)
+            {
+                return;
+            }
+
+            wrongWay = shown;
+            wrongWayLabel.gameObject.SetActive(shown);
         }
 
 
