@@ -57,6 +57,11 @@ public class GameManager : MonoBehaviour
     [Tooltip("The bike. Held still through the countdown and let go on GO.")]
     [SerializeField] private PlayerController player;
 
+    [Tooltip("Optional. Dropped into place behind the bike at the top of every countdown. " +
+             "Without it the camera swings into frame while the numbers run, because the bike " +
+             "was put on the grid rather than ridden there.")]
+    [SerializeField] private CameraFollow chaseCamera;
+
     [Tooltip("Optional. The lap clock is started on GO rather than when the world appears, so " +
              "the countdown is not on the rider's time.")]
     [SerializeField] private RaceHUD hud;
@@ -127,6 +132,14 @@ public class GameManager : MonoBehaviour
         if (player == null)
         {
             Debug.LogError($"{name}: no PlayerController, so the bike cannot be held on the line.", this);
+        }
+
+        // There is only ever one chase camera, and it lives outside the gameplay object where a
+        // slot on this component cannot reach it by accident. Finding it costs one lookup at
+        // boot and saves the scene having to be re-wired for this to work.
+        if (chaseCamera == null)
+        {
+            chaseCamera = FindAnyObjectByType<CameraFollow>();
         }
 
         if (riderSelection != null && riderSelection.RaceButton != null)
@@ -250,6 +263,15 @@ public class GameManager : MonoBehaviour
         if (player != null)
         {
             player.HoldOnLine();
+        }
+
+        // After the bike is on the grid, so the camera has the heading it will start from, and
+        // before the first number, so the countdown is already framed the way the race will be.
+        // Both ways in run through here: the world coming up out of the menu, where the bike has
+        // only just woken up, and Race Again, where it has been teleported back to the line.
+        if (chaseCamera != null)
+        {
+            chaseCamera.SnapToTarget();
         }
 
         if (hud != null)

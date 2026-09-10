@@ -9,6 +9,10 @@ using UnityEngine;
 /// camera trailing by speed * smoothTime, so the bike would drift away as it accelerated and
 /// loom closer under braking. Smoothing the angle alone keeps the distance exact and still
 /// gives the camera its swing coming out of a turn.
+///
+/// <see cref="SnapToTarget"/> takes that swing back out for the frames the bike is placed
+/// rather than ridden. The smoothing cannot tell a teleport from a corner, so the race says
+/// when a teleport happened.
 /// </summary>
 [DisallowMultipleComponent]
 public class CameraFollow : MonoBehaviour
@@ -70,15 +74,59 @@ public class CameraFollow : MonoBehaviour
     /// </summary>
     private void LateUpdate()
     {
-        yaw = Mathf.SmoothDampAngle(yaw, target.Heading, ref yawVelocity, yawSmoothTime);
+        // Nothing to follow while the world is switched off. The bike's own Awake has not run
+        // at that point, so its heading still reads zero, and smoothing towards a heading the
+        // bike does not actually have walks the camera off its authored framing while the menu
+        // is up. It is then that walk, not the start of the race, that the camera swings back
+        // from when the world appears.
+        if (!target.isActiveAndEnabled)
+        {
+            return;
+        }
 
+        yaw = Mathf.SmoothDampAngle(yaw, target.Heading, ref yawVelocity, yawSmoothTime);
+        ApplyFraming();
+
+        UpdateFieldOfView();
+    }
+
+    /// <summary>
+    /// Drops the camera straight into place behind the bike, with no swing and the lens back at
+    /// rest. For the frames the bike is put somewhere rather than driven there: the world coming
+    /// up out of the menu, and the bike going back to the grid for another go. Smoothing across
+    /// one of those is the camera orbiting the start line while the numbers count down.
+    /// </summary>
+    public void SnapToTarget()
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        yaw = target.Heading;
+        yawVelocity = 0f;
+        ApplyFraming();
+
+        // The lens is left wherever the last run's speed had opened it out to, and would
+        // otherwise ease shut across the countdown of the next one.
+        fieldOfViewVelocity = 0f;
+        if (view != null && !view.orthographic)
+        {
+            view.fieldOfView = baseFieldOfView;
+        }
+    }
+
+    /// <summary>
+    /// Puts the camera behind the bike at the current yaw, holding the distance and height the
+    /// scene was authored with.
+    /// </summary>
+    private void ApplyFraming()
+    {
         Quaternion orbit = Quaternion.Euler(0f, yaw, 0f);
         transform.position = target.transform.position
                              + orbit * Vector3.back * followDistance
                              + Vector3.up * height;
         transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
-
-        UpdateFieldOfView();
     }
 
     /// <summary>

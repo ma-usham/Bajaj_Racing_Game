@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a0fa2842537befb4d95c246238ddedea
+guid: c7b4a97bffe85d54184b1cb4f0195889
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6735360571670625442
-    second: PHOTO 3_0
+      213: 7547239121526686342
+    second: InputField_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -52,7 +52,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
-  spriteBorder: {x: 109, y: 125, z: 93, w: 92}
+  spriteBorder: {x: 409, y: 43, z: 426, w: 42}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
   alphaIsTransparency: 1
@@ -128,13 +128,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: PHOTO 3_0
+      name: InputField_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 206
-        height: 221
+        width: 960
+        height: 98
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,8 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 2ac799421cec87d50800000000000000
-      internalID: 6735360571670625442
+      spriteID: 68287897efd2db860800000000000000
+      internalID: 7547239121526686342
       vertices: []
       indices: 
       edges: []
@@ -163,7 +163,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      PHOTO 3_0: 6735360571670625442
+      InputField_0: 7547239121526686342
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
