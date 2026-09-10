@@ -4208,7 +4208,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0.04008786, y: 0.7059696, z: -0.04008786, w: 0.7059696}
-  m_LocalPosition: {x: -12, y: 3, z: 62.3}
+  m_LocalPosition: {x: -16, y: 3, z: 62.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5130,7 +5130,7 @@ Transform:
   m_GameObject: {fileID: 592409885}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.5, y: 1.2, z: 62.6}
+  m_LocalPosition: {x: -4.5, y: 1.2, z: 62.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5154,7 +5154,7 @@ MonoBehaviour:
   acceleration: 8
   brakeDeceleration: 10
   brakeFloor: 0.4
-  padResponse: 30
+  padResponse: 1
   minTurnRadius: 12
   steerResponse: 3.5
   maxLeanAngle: 20
