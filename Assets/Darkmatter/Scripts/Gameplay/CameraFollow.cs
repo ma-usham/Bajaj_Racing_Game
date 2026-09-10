@@ -7,8 +7,20 @@ namespace Darkmatter.Gameplay
     {
         [SerializeField] private PlayerController target;
 
-        [Tooltip("Seconds for the camera to swing back in line behind the bike after a turn.")] [SerializeField]
-        private float yawSmoothTime = 0.25f;
+        [Tooltip("Seconds for the camera to swing back in line behind the bike after a turn. A " +
+                 "little lag is what puts the corner on the screen: the bike leans and turns " +
+                 "inside the frame, instead of sitting dead ahead while the world spins round " +
+                 "it. 0 welds the camera to the heading and the turn becomes invisible.")]
+        [Min(0f)]
+        [SerializeField]
+        private float yawLag = 0.12f;
+
+        [Tooltip("Seconds for the camera to catch the bike up. Tight enough to keep it framed, " +
+                 "loose enough that a flick of the bars slides the bike across the frame and the " +
+                 "camera drops back a length under acceleration. 0 pins it to the bike.")]
+        [Min(0f)]
+        [SerializeField]
+        private float followLag = 0.06f;
 
         [Header("Speed")]
         [Tooltip("Degrees of field of view added at top speed, on top of whatever the camera was " +
@@ -26,6 +38,7 @@ namespace Darkmatter.Gameplay
         private float yawVelocity;
         private float followDistance;
         private float height;
+        private Vector3 followVelocity;
 
         private Camera view;
         private float baseFieldOfView;
@@ -65,8 +78,8 @@ namespace Darkmatter.Gameplay
                 return;
             }
 
-            yaw = Mathf.SmoothDampAngle(yaw, target.Heading, ref yawVelocity, yawSmoothTime);
-            ApplyFraming();
+            yaw = Mathf.SmoothDampAngle(yaw, target.Heading, ref yawVelocity, yawLag);
+            Follow(false);
 
             UpdateFieldOfView();
         }
@@ -81,7 +94,8 @@ namespace Darkmatter.Gameplay
 
             yaw = target.Heading;
             yawVelocity = 0f;
-            ApplyFraming();
+            followVelocity = Vector3.zero;
+            Follow(true);
 
 
             fieldOfViewVelocity = 0f;
@@ -92,12 +106,21 @@ namespace Darkmatter.Gameplay
         }
 
 
-        private void ApplyFraming()
+        /// <summary>
+        /// Immediate is for putting the camera on the grid, where there is nothing to catch up
+        /// to yet. Everywhere else it chases, so the bike is not welded to the middle of the
+        /// screen and the frame keeps some weight of its own.
+        /// </summary>
+        private void Follow(bool immediate)
         {
             Quaternion orbit = Quaternion.Euler(0f, yaw, 0f);
-            transform.position = target.transform.position
-                                 + orbit * Vector3.back * followDistance
-                                 + Vector3.up * height;
+            Vector3 wanted = target.transform.position
+                             + orbit * Vector3.back * followDistance
+                             + Vector3.up * height;
+
+            transform.position = immediate
+                ? wanted
+                : Vector3.SmoothDamp(transform.position, wanted, ref followVelocity, followLag);
             transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
         }
 

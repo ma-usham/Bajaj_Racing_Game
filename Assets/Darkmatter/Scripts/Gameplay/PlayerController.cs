@@ -33,19 +33,36 @@ namespace Darkmatter.Gameplay
         private float padResponse = 30f;
 
         [Header("Steering")]
-        [Tooltip("Tightest circle the bike can carve, in units, at full lock. Smaller turns harder. " +
-                 "A hairpin on a 76.8 unit circuit wants roughly 6 to 10.")]
+        [Tooltip("Degrees per second the bike turns at full lock when it is barely moving. A bike " +
+                 "leans round a corner rather than being driven round it, so unlike a car it can " +
+                 "still turn when it is crawling, and the rider is never left with dead bars.")]
+        [Min(0f)]
         [SerializeField]
-        private float minTurnRadius = 8f;
+        private float turnRateStopped = 65f;
 
-        [Tooltip("How quickly steering input eases in and out. Lower is floatier.")] [SerializeField]
-        private float steerResponse = 5f;
+        [Tooltip("Degrees per second at full lock and top speed. Top speed divided by this in " +
+                 "radians is the tightest circle the bike can carve, so 120 at 20 units per " +
+                 "second turns inside a circle roughly 9.5 units across.")]
+        [Min(0f)]
+        [SerializeField]
+        private float turnRateAtTopSpeed = 120f;
 
-        [Tooltip("Bank angle in degrees at full lean.")] [SerializeField]
-        private float maxLeanAngle = 20f;
+        [Tooltip("Seconds from straight to full lock, and back again. This is the whole of how " +
+                 "immediate the bars feel: under about a tenth of a second the bike goes where " +
+                 "it is pointed the moment the key is down, and much over it the steering swims.")]
+        [Min(0.01f)]
+        [SerializeField]
+        private float steerTime = 0.08f;
 
-        [Tooltip("How quickly the bike rolls into and out of a lean. Lower is heavier.")] [SerializeField]
-        private float leanResponse = 6f;
+        [Tooltip("Bank angle in degrees at full lock.")] [SerializeField]
+        private float leanAngle = 30f;
+
+        [Tooltip("Seconds to roll the whole way into a lean. Wants to stay near the steering " +
+                 "time, or the bike banks after it has already turned and the two read as two " +
+                 "separate things happening to the same sprite.")]
+        [Min(0.01f)]
+        [SerializeField]
+        private float leanTime = 0.09f;
 
         [Header("Wheels")]
         [Tooltip("Optional. The wheel animation, taken from this object if left empty.")]
@@ -256,7 +273,7 @@ namespace Darkmatter.Gameplay
             if (Held)
             {
                 currentSpeed = 0f;
-                lean = Mathf.Lerp(lean, 0f, 1f - Mathf.Exp(-leanResponse * deltaTime));
+                lean = Mathf.MoveTowards(lean, 0f, LeanRate * deltaTime);
                 transform.rotation = Quaternion.Euler(pitch, heading, 0f)
                                      * Quaternion.Euler(0f, 0f, -lean);
                 SpinWheels();
@@ -361,18 +378,26 @@ namespace Darkmatter.Gameplay
             }
         }
 
+        /// <summary>
+        /// The bike turns at a rate of its own rather than being swung round by how fast it is
+        /// going, which is what stops the steering going dead at the bottom of the throttle and
+        /// vague at the top of it. Speed only widens the turn, and the lean is driven off the
+        /// same eased steering as the turn so the bank and the corner are one movement.
+        /// </summary>
         private void UpdateSteering(float deltaTime)
         {
             float steerInput = inputReader != null ? Mathf.Clamp(inputReader.Steer, -1f, 1f) : 0f;
-            steer = Mathf.MoveTowards(steer, steerInput, steerResponse * deltaTime);
+            steer = Mathf.MoveTowards(steer, steerInput, deltaTime / steerTime);
 
-            float radius = Mathf.Max(minTurnRadius, 0.01f);
-            float yawRate = steer * currentSpeed / radius;
-            heading += yawRate * Mathf.Rad2Deg * deltaTime;
+            float turnRate = Mathf.Lerp(turnRateStopped, turnRateAtTopSpeed,
+                Mathf.Clamp01(SpeedNormalized));
+            heading += steer * turnRate * deltaTime;
 
-            float targetLean = steerInput * maxLeanAngle;
-            lean = Mathf.Lerp(lean, targetLean, 1f - Mathf.Exp(-leanResponse * deltaTime));
+            lean = Mathf.MoveTowards(lean, steer * leanAngle, LeanRate * deltaTime);
         }
+
+        /// <summary>Degrees per second the bike rolls, so a full lean takes the time asked for.</summary>
+        private float LeanRate => leanAngle / leanTime;
 
         private void OnDrawGizmosSelected()
         {

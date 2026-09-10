@@ -1313,7 +1313,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &220518575
 Transform:
   m_ObjectHideFlags: 0
@@ -4526,7 +4526,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 40
+  field of view: 50
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -4572,7 +4572,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
   target: {fileID: 592409888}
-  yawSmoothTime: 0.1
+  yawLag: 0
+  followLag: 0.05
   speedFieldOfViewGain: 15
   fieldOfViewSmoothTime: 0.2
 --- !u!1 &520695975
@@ -5684,10 +5685,11 @@ MonoBehaviour:
   brakeDeceleration: 10
   brakeFloor: 0.4
   padResponse: 1
-  minTurnRadius: 12
-  steerResponse: 3.5
-  maxLeanAngle: 20
-  leanResponse: 3
+  turnRateStopped: 65
+  turnRateAtTopSpeed: 120
+  steerTime: 0.5
+  leanAngle: 30
+  leanTime: 0.09
   wheels: {fileID: 830000002}
   wheelPlaybackAtTopSpeed: 5
   engineLoop: {fileID: 8300000, guid: c11079e88c329ea4db20aa48f82ab57a, type: 3}
@@ -6021,7 +6023,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &654211314
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6465,7 +6467,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &694092162
 Transform:
   m_ObjectHideFlags: 0
@@ -40401,7 +40403,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &810000002
 RectTransform:
   m_ObjectHideFlags: 0
@@ -40571,7 +40573,7 @@ MonoBehaviour:
   inputReader: {fileID: 11400000, guid: 11a6ebd9c58da5f4da8399bd1ac44dcc, type: 2}
   player: {fileID: 592409888}
   chaseCamera: {fileID: 0}
-  speedPads: {fileID: 0}
+  speedPads: {fileID: 2009764414}
   hud: {fileID: 694092163}
   lapTracker: {fileID: 830000001}
   lapCompletePanel: {fileID: 758075234}
