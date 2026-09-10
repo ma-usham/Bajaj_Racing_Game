@@ -20,10 +20,10 @@ public class RiderSelectionUI : MonoBehaviour
     public bool HasSelection => SelectedRiderIndex != NoRiderSelected;
     public int RiderCount => riders.Count;
 
-    /// <summary>
-    /// The button that leaves the menu, so whoever owns the race can listen for it rather than
-    /// this panel needing to know what happens next. Interactable only once a rider is picked.
-    /// </summary>
+    
+    
+    
+    
     public Button RaceButton => letsRaceButton;
 
     private void Awake()

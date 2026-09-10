@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// A set of props that turn together, and how far they are allowed to turn.
-/// </summary>
+
+
+
 [System.Serializable]
 public class BillboardGroup
 {
@@ -29,33 +29,33 @@ public class BillboardGroup
     public float swing = 180f;
 }
 
-/// <summary>
-/// Turns the flat scenery to face the camera.
-///
-/// Every prop in this world is one upright sprite, so left alone each is only right from the
-/// angle it was authored at: come round the circuit and it thins to a sliver, or shows its
-/// back. Turning them with the camera is what hides that.
-///
-/// Two things worth knowing about how they are turned.
-///
-/// Only the yaw is touched. The chase camera sits at about six degrees of pitch, so tilting a
-/// sprite back to square up with the lens would gain well under a percent of height and cost
-/// the prop its footing on the ground, which is the one thing selling it as standing there.
-///
-/// Every prop takes the camera's yaw rather than aiming at the camera's position. Aiming at
-/// the point turns a prop at the edge of a 52 degree lens several degrees away from the one
-/// beside it, so a row of trees fans out as it goes past. One shared yaw keeps the row
-/// parallel, and costs one quaternion for the lot of them.
-///
-/// How far each prop is allowed to follow the camera is its group's business, and a group that
-/// cannot turn at all is not tracked here: it is only somewhere for the road facing tool to
-/// find those props. See <see cref="BillboardGroup"/>.
-/// </summary>
-/// <remarks>
-/// Runs after CameraFollow, which moves the camera in LateUpdate and has no order of its own.
-/// Two LateUpdates with the same order run in an undefined order, and coming first would leave
-/// the props a frame behind the camera.
-/// </remarks>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [DefaultExecutionOrder(100)]
 [DisallowMultipleComponent]
 public class PropBillboards : MonoBehaviour
@@ -66,7 +66,7 @@ public class PropBillboards : MonoBehaviour
     [Tooltip("The scenery, split by how freely it may turn. One group per kind of prop.")]
     [SerializeField] private BillboardGroup[] groups = new BillboardGroup[0];
 
-    /// <summary>Above this a prop simply takes the camera's yaw, and the clamp is beside the point.</summary>
+    
     private const float FullSwing = 179.9f;
 
     private Transform[] props;
@@ -101,13 +101,13 @@ public class PropBillboards : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Reads the scenery back out of the groups. Called once at Awake, because scenery does not
-    /// come and go; call it again if some ever does.
-    ///
-    /// Each prop's own rotation at the moment it is read becomes the facing it swings about, so
-    /// the road facing tool and the inspector both stay the authority on where a prop points.
-    /// </summary>
+    
+    
+    
+    
+    
+    
+    
     public void Refresh()
     {
         List<Transform> found = new List<Transform>();
@@ -152,7 +152,7 @@ public class PropBillboards : MonoBehaviour
 
         lastYaw = cameraYaw;
 
-        // Built once and handed to every prop that turns freely, which is most of them.
+        
         Quaternion square = Quaternion.Euler(0f, cameraYaw, 0f);
 
         for (int i = 0; i < props.Length; i++)

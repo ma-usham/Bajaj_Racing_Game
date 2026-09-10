@@ -2,17 +2,17 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// The prize form. Reads the two fields and hands them to <see cref="PrizeClaimStore"/>.
-///
-/// The panel owns its own widgets, the same way the rider selection owns its buttons: the race
-/// only has to know when to put this screen up, not what is on it.
-///
-/// Submit is greyed out until both fields have something in them, and greyed out again once the
-/// claim is in. That is the whole of the feedback for now: there is nothing on the panel to
-/// write a message into, and a button that visibly cannot be pressed says more than a button
-/// that can be pressed and silently does nothing.
-/// </summary>
+
+
+
+
+
+
+
+
+
+
+
 [DisallowMultipleComponent]
 public class PrizeClaimUI : MonoBehaviour
 {
@@ -24,13 +24,13 @@ public class PrizeClaimUI : MonoBehaviour
              "come unstuck when the button is renamed or the scene is merged.")]
     [SerializeField] private Button submitButton;
 
-    /// <summary>True once this rider's claim is in the file.</summary>
+    
     public bool HasClaimed { get; private set; }
 
-    /// <summary>
-    /// What was stored, trimmed and stamped, for whatever puts a reward code up next. Only
-    /// meaningful while <see cref="HasClaimed"/> is true.
-    /// </summary>
+    
+    
+    
+    
     public PrizeClaim LastClaim { get; private set; }
 
     private void Awake()
@@ -61,10 +61,10 @@ public class PrizeClaimUI : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Every time the panel comes up it is a new rider, so the last one's details do not sit
-    /// there waiting to be submitted again under someone else's name.
-    /// </summary>
+    
+    
+    
+    
     private void OnEnable()
     {
         HasClaimed = false;
@@ -83,10 +83,10 @@ public class PrizeClaimUI : MonoBehaviour
         Refresh();
     }
 
-    /// <summary>
-    /// Stores the claim. Wired to the Submit and Claim button, and safe to call from anywhere
-    /// else: a second call once the claim is in does nothing, so a double tap is one entry.
-    /// </summary>
+    
+    
+    
+    
     public void Submit()
     {
         if (HasClaimed)
@@ -99,8 +99,8 @@ public class PrizeClaimUI : MonoBehaviour
 
         if (!PrizeClaimStore.Add(typedName, typedPhone, out PrizeClaim stored))
         {
-            // Only reachable if something else called this, since the button is not pressable
-            // until both fields have something in them.
+            
+            
             Refresh();
             return;
         }

@@ -1,29 +1,29 @@
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Draws and edits a <see cref="SpeedPadSpawner"/>'s zones in the scene view. Select the
-/// object, look down at the road, and drop a zone over each stretch that should have pads on
-/// it: the circle is where a pad is allowed to land, and the blue dots inside it are where
-/// pads would actually end up once each point is pulled back onto the asphalt.
-///
-/// The dots are drawn by the spawner's own <see cref="SpeedPadSpawner.TryPlace"/>, not by a
-/// copy of it here, so what the scene view shows is what play mode does. A zone hanging half
-/// off the road shows up straight away as dots bunched along the kerb.
-/// </summary>
+
+
+
+
+
+
+
+
+
+
 [CustomEditor(typeof(SpeedPadSpawner))]
 public class SpeedPadSpawnerEditor : Editor
 {
-    /// <summary>Drawn a touch above the road, or the Track sprite hides the circles.</summary>
+    
     private const float DrawHeight = 0.12f;
 
-    /// <summary>How near the pointer has to be, in screen pixels, to delete a zone.</summary>
+    
     private const float PickDistance = 20f;
 
-    /// <summary>Landing spots sampled per zone. Enough to read the shape, few enough to stay quick.</summary>
+    
     private const int PreviewSamples = 32;
 
-    /// <summary>Radius a zone is dropped with when there is no earlier zone to copy.</summary>
+    
     private const float DefaultRadius = 8f;
 
     private static readonly Color ZoneColour = new Color(1.00f, 0.70f, 0.15f);
@@ -64,8 +64,8 @@ public class SpeedPadSpawnerEditor : Editor
         SpeedPadSpawner spawner = (SpeedPadSpawner)target;
         serializedObject.Update();
 
-        // Claimed before any of the zone handles, so it is the same id on the layout pass and
-        // on the pass that acts on the click, however many zones there happen to be.
+        
+        
         int controlId = GUIUtility.GetControlID(FocusType.Passive);
 
         UnityEngine.Rendering.CompareFunction wasTesting = Handles.zTest;
@@ -97,7 +97,7 @@ public class SpeedPadSpawnerEditor : Editor
             DrawLandingSpots(spawner, flat, radius.floatValue);
         }
 
-        // Forward along world up lays the disc flat in the XZ plane, which is where the road is.
+        
         Handles.color = ZoneColour;
         EditorGUI.BeginChangeCheck();
         float resized = Handles.RadiusHandle(Quaternion.LookRotation(Vector3.up, Vector3.forward),
@@ -117,11 +117,11 @@ public class SpeedPadSpawnerEditor : Editor
         }
     }
 
-    /// <summary>
-    /// Marks a spread of the spots pads could land on. The points are laid out on a golden
-    /// angle spiral rather than rolled at random, so the preview covers the zone evenly and
-    /// holds still between repaints instead of shimmering.
-    /// </summary>
+    
+    
+    
+    
+    
     private void DrawLandingSpots(SpeedPadSpawner spawner, Vector2 centre, float radius)
     {
         Handles.color = LandingColour;
@@ -151,8 +151,8 @@ public class SpeedPadSpawnerEditor : Editor
 
         if (current.type == EventType.Layout && (adding || deleting))
         {
-            // Without this a click in the scene view picks whatever is under it and the
-            // spawner stops being the selection, taking this editor with it.
+            
+            
             HandleUtility.AddDefaultControl(controlId);
         }
 
@@ -161,8 +161,8 @@ public class SpeedPadSpawnerEditor : Editor
             return;
         }
 
-        // A zone handle claims the click before this runs, so shift dragging a zone moves it
-        // rather than dropping a second zone on top of the one already there.
+        
+        
         if (GUIUtility.hotControl != 0)
         {
             return;
@@ -191,9 +191,9 @@ public class SpeedPadSpawnerEditor : Editor
 
         Vector3 hit = ray.GetPoint(distance);
 
-        // Growing the array copies the last zone rather than zeroing a new one, so a zone
-        // added this way would come out with whatever radius and count the array happened to
-        // be left with, and a first zone with a radius of nothing. Every field is set here.
+        
+        
+        
         float radius = zones.arraySize > 0
             ? zones.GetArrayElementAtIndex(zones.arraySize - 1).FindPropertyRelative("radius").floatValue
             : DefaultRadius;

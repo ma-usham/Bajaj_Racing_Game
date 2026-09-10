@@ -1,24 +1,24 @@
 using UnityEditor;
 using UnityEngine;
 
-/// <summary>
-/// Draws and edits a <see cref="TrackPathSO"/> in the scene view. Select the asset, look down
-/// at the road from above, and lay the centreline a point at a time from start to finish: the
-/// border either side is drawn live at the asset's own half width, so what you see while
-/// placing points is exactly where the bike will be stopped.
-///
-/// Nothing about the border is stored. It is the centreline offset by the half width, worked
-/// out afresh every frame in PlayerController, so redrawing the line or changing the width is
-/// all it takes to move it. A new road needs nothing but this; baking one out of track art
-/// (Tools/track_path_baker) is only worth it for a circuit already painted in the pixels.
-/// </summary>
+
+
+
+
+
+
+
+
+
+
+
 [CustomEditor(typeof(TrackPathSO))]
 public class TrackPathSOEditor : Editor
 {
-    /// <summary>Drawn a touch above the road, or the Track sprite hides the lines.</summary>
+    
     private const float DrawHeight = 0.1f;
 
-    /// <summary>How near the pointer has to be, in screen pixels, to delete a point.</summary>
+    
     private const float PickDistance = 16f;
 
     private const int ArrowSpacing = 8;
@@ -33,10 +33,10 @@ public class TrackPathSOEditor : Editor
     private SerializedProperty closedLoop;
     private SerializedProperty lapLength;
 
-    /// <summary>
-    /// Lengths of road between points: one per point when the loop closes, one fewer when
-    /// the road has two ends and nothing joins them.
-    /// </summary>
+    
+    
+    
+    
     private int SegmentCount => closedLoop.boolValue
         ? points.arraySize
         : Mathf.Max(points.arraySize - 1, 0);
@@ -137,11 +137,11 @@ public class TrackPathSOEditor : Editor
 
         serializedObject.Update();
 
-        // Claimed before any of the point handles, so it is the same id on the layout pass
-        // and the pass that acts on the click, however many points there happen to be.
+        
+        
         int controlId = GUIUtility.GetControlID(FocusType.Passive);
 
-        // Drawn over the top of the Track sprite rather than fighting it for depth.
+        
         UnityEngine.Rendering.CompareFunction wasTesting = Handles.zTest;
         Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
 
@@ -219,8 +219,8 @@ public class TrackPathSOEditor : Editor
 
         if (current.type == EventType.Layout && (adding || deleting))
         {
-            // Without this a click in the scene view picks whatever is under it and the
-            // asset stops being the selection, taking this editor with it.
+            
+            
             HandleUtility.AddDefaultControl(controlId);
         }
 
@@ -229,8 +229,8 @@ public class TrackPathSOEditor : Editor
             return;
         }
 
-        // A point handle claims the click before this runs, so shift clicking one drags it
-        // rather than dropping a second point on top of the one already there.
+        
+        
         if (GUIUtility.hotControl != 0)
         {
             return;
@@ -260,13 +260,13 @@ public class TrackPathSOEditor : Editor
         Vector3 hit = ray.GetPoint(distance);
         Vector2 placed = new Vector2(hit.x, hit.z);
 
-        // A road with two ends is drawn a point at a time, start to finish, so every click
-        // carries on from the last one. Guessing at where a click "meant" to go instead is
-        // what makes drawing a corner unpredictable: the click lands beside an earlier
-        // stretch and the point lands there rather than under the pointer.
-        //
-        // A circuit has no end to carry on from, so there the click splits whichever length
-        // of road it landed nearest.
+        
+        
+        
+        
+        
+        
+        
         int at = points.arraySize;
         if (closedLoop.boolValue && points.arraySize >= 3)
         {

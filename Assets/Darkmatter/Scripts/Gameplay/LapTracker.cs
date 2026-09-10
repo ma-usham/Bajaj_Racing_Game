@@ -49,7 +49,7 @@ public class LapTracker : MonoBehaviour
             return;
         }
 
-        segmentHint = -1;                      // the bike may have been put back on the grid
+        segmentHint = -1;                      
         lastDistance = DistanceAlong(Flat(player.transform.position));
         LapDistance = 0f;
         Running = true;

@@ -27,7 +27,7 @@ public class RaceHUD : MonoBehaviour
     private int shownSpeed = -1;
     private readonly StringBuilder lapTimeBuilder = new StringBuilder(16);
 
-    /// Seconds since the current lap started.
+    
     public float LapTime => lapRunning ? Time.time - lapStartTime : 0f;
 
     private void Awake()
@@ -77,9 +77,9 @@ public class RaceHUD : MonoBehaviour
             return;
         }
 
-        // Not clamped to the top of the dial: a boost pad takes the bike past its own top
-        // speed, and a speedo that sticks at the headline number while it happens is the one
-        // moment the reading would be lying.
+        
+        
+        
         int reading = Reading(player.SpeedNormalized);
         if (reading == shownSpeed)
         {
@@ -101,19 +101,19 @@ public class RaceHUD : MonoBehaviour
         lapTimeLabel.SetText(lapTimeBuilder);
     }
 
-    /// <summary>
-    /// A 0 to 1 speed written the way the speedo writes it, units and all. Public so the
-    /// results panel reads off the same dial instead of inventing its own conversion.
-    /// </summary>
+    
+    
+    
+    
     public string FormatSpeed(float normalized) => Reading(normalized) + speedSuffix;
 
     private int Reading(float normalized) =>
         Mathf.RoundToInt(Mathf.Max(normalized, 0f) * displayTopSpeed);
 
-    /// <summary>
-    /// A time as m:ss.mmm. Public and static because the results panel shows the same clock
-    /// the HUD does, and two spellings of the same time is how they end up disagreeing.
-    /// </summary>
+    
+    
+    
+    
     public static string FormatTime(float seconds)
     {
         StringBuilder builder = new StringBuilder(16);

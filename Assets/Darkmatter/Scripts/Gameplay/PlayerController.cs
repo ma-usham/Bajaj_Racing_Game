@@ -83,39 +83,39 @@ public class PlayerController : MonoBehaviour
 
     public float CurrentSpeed => currentSpeed;
 
-    /// <summary>
-    /// Speed against the bike's own top speed. Goes above 1 while a boost pad is running,
-    /// because a boost is a top speed the bike cannot otherwise reach.
-    /// </summary>
+    
+    
+    
+    
     public float SpeedNormalized => maxSpeed > 0f ? currentSpeed / maxSpeed : 0f;
     public float DistanceTravelled => distanceTravelled;
     public float Heading => heading;
     public float Lean => lean;
     public Vector3 Forward => Quaternion.Euler(0f, heading, 0f) * Vector3.forward;
 
-    /// <summary>The circuit the bike is held to, so pads can be laid on the same one.</summary>
+    
     public TrackPathSO Track => track;
 
-    /// <summary>What a pad is currently doing to top speed. 1 when no pad is running.</summary>
+    
     public float SpeedMultiplier => padMultiplier;
 
-    /// <summary>Seconds left on the pad currently running, 0 when none is.</summary>
+    
     public float PadTimeRemaining => padRemaining;
 
     public bool Boosting => padRemaining > 0f && padMultiplier > 1f;
 
     public bool Slowed => padRemaining > 0f && padMultiplier < 1f;
 
-    /// <summary>
-    /// The fastest the bike has gone since it was last put on the line, against its own top
-    /// speed. Goes above 1 if that happened on a boost pad, same as <see cref="SpeedNormalized"/>.
-    /// </summary>
+    
+    
+    
+    
     public float TopSpeedNormalized => maxSpeed > 0f ? topSpeed / maxSpeed : 0f;
 
-    /// <summary>
-    /// True while the bike is being held on the start line. The countdown owns this: the world
-    /// is already there to look at, the rider simply cannot go yet.
-    /// </summary>
+    
+    
+    
+    
     public bool Held { get; private set; }
 
     private void Awake()
@@ -133,8 +133,8 @@ public class PlayerController : MonoBehaviour
         pitch = angles.x;
         heading = angles.y;
 
-        // The grid slot is wherever the bike was placed in the scene, remembered here so a
-        // restart needs nothing authored anywhere else.
+        
+        
         startPosition = transform.position;
         startHeading = heading;
     }
@@ -155,11 +155,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Holds the bike where it stands, for the countdown before the flag drops. Input is
-    /// ignored and the speed is pinned at nothing, but the bike stays exactly where it was
-    /// put in the scene, so the grid slot is whatever the Bike's own transform says.
-    /// </summary>
+    
+    
+    
+    
+    
     public void HoldOnLine()
     {
         Held = true;
@@ -169,19 +169,19 @@ public class PlayerController : MonoBehaviour
         ClearSpeedModifier();
     }
 
-    /// <summary>Hands control back. This is the flag dropping.</summary>
+    
     public void Release()
     {
         Held = false;
     }
 
-    /// <summary>
-    /// Puts the bike back on the grid slot it was placed at in the scene, facing the way it
-    /// was placed, with nothing carried over from the last run: no speed, no lean, no pad, and
-    /// no memory of which bit of road it was last on. That last one matters, because the bike
-    /// has just been moved without driving there, and the barrier's search starts from where
-    /// it last saw it.
-    /// </summary>
+    
+    
+    
+    
+    
+    
+    
     public void ReturnToLine()
     {
         heading = startHeading;
@@ -203,9 +203,9 @@ public class PlayerController : MonoBehaviour
 
         if (Held)
         {
-            // Still drawn, just not driven: the lean is eased upright rather than left frozen
-            // mid-corner, so a bike held after a restart settles onto the line rather than
-            // sitting there banked over.
+            
+            
+            
             currentSpeed = 0f;
             lean = Mathf.Lerp(lean, 0f, 1f - Mathf.Exp(-leanResponse * deltaTime));
             transform.rotation = Quaternion.Euler(pitch, heading, 0f)
@@ -265,15 +265,15 @@ public class PlayerController : MonoBehaviour
         return new Vector3(held.x, position.y, held.y);
     }
 
-    /// <summary>
-    /// Hands the bike a temporary ceiling on top speed: above 1 for a boost pad, below it for
-    /// a slow one. Driving over a second pad replaces the first outright rather than stacking
-    /// with it, so a slowdown always cancels a boost and two boosts in a row are one boost
-    /// held for longer, not a bike that keeps getting faster.
-    /// </summary>
-    /// <param name="multiplier">Share of <c>maxSpeed</c> the bike may now reach.</param>
-    /// <param name="duration">Seconds it lasts. The bike bleeds back to its own top speed
-    /// under acceleration once it runs out, rather than snapping back.</param>
+    
+    
+    
+    
+    
+    
+    
+    
+    
     public void ApplySpeedModifier(float multiplier, float duration)
     {
         if (multiplier <= 0f || duration <= 0f)
@@ -285,7 +285,7 @@ public class PlayerController : MonoBehaviour
         padRemaining = duration;
     }
 
-    /// <summary>Drops whatever pad is running, for a restart or a finish line.</summary>
+    
     public void ClearSpeedModifier()
     {
         padMultiplier = 1f;
@@ -306,10 +306,10 @@ public class PlayerController : MonoBehaviour
         bool padRunning = padRemaining > 0f;
         bool braking = inputReader != null && inputReader.IsBraking;
 
-        // A pad moves the ceiling rather than taking a one-off bite out of the speed, for the
-        // same reason a scrape does: a bite is handed straight back by the throttle on the
-        // next frame. Reaching that ceiling is deliberately quicker than the throttle would
-        // manage, or a boost reads as ordinary acceleration and a slowdown as coasting.
+        
+        
+        
+        
         float targetSpeed = braking
             ? Mathf.Min(currentSpeed, brakeFloor * maxSpeed)
             : maxSpeed * padMultiplier;
@@ -345,7 +345,7 @@ public class PlayerController : MonoBehaviour
         steer = Mathf.MoveTowards(steer, steerInput, steerResponse * deltaTime);
 
         float radius = Mathf.Max(minTurnRadius, 0.01f);
-        float yawRate = steer * currentSpeed / radius; // radians per second
+        float yawRate = steer * currentSpeed / radius; 
         heading += yawRate * Mathf.Rad2Deg * deltaTime;
         
         float targetLean = steerInput * maxLeanAngle;

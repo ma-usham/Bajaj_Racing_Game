@@ -1,23 +1,23 @@
 using UnityEngine;
 
-/// <summary>What driving over a pad does to the bike.</summary>
+
 public enum SpeedPadKind
 {
-    /// <summary>Lifts the ceiling on top speed.</summary>
+    
     Boost,
 
-    /// <summary>Drops it.</summary>
+    
     Slowdown,
 }
 
-/// <summary>
-/// A patch of road pads are scattered over: a point in world XZ, and how far from it a pad
-/// is allowed to land.
-///
-/// A zone is a wish rather than an instruction. Where a pad actually ends up is a random
-/// point inside the circle pulled back onto the asphalt, so a zone can be dropped roughly
-/// over a corner without measuring anything and still never leave a pad on the grass.
-/// </summary>
+
+
+
+
+
+
+
+
 [System.Serializable]
 public class SpeedPadZone
 {
@@ -37,9 +37,9 @@ public class SpeedPadZone
     public int count = 1;
 }
 
-/// <summary>
-/// Everything one kind of pad is: what it looks like, and what it does to the bike.
-/// </summary>
+
+
+
 [System.Serializable]
 public class SpeedPadSettings
 {
@@ -74,22 +74,22 @@ public class SpeedPadSettings
     public AudioClip sound;
 }
 
-/// <summary>
-/// Scatters boost and slowdown pads over the road and hands their effect to the bike.
-///
-/// Give it zones, a position and a radius each, and it does the rest: inside every zone it
-/// rolls a random point, pulls that point onto the asphalt using the same baked centreline
-/// the barrier runs off, rolls boost or slowdown for it, and lays a pad there facing down the
-/// racing direction. Nothing is hand placed, and no two runs need be laid out the same.
-///
-/// There are no colliders anywhere in this game and the road is only pixels on the Track
-/// sprite, so a pad cannot be a trigger volume. Pickup is a distance test against the line the
-/// bike travelled this frame rather than against where it happened to end up, or at twenty
-/// units a second a pad could sit in the gap between two frames and never be hit at all.
-///
-/// Collected pads come back after a delay, in a fresh spot with a freshly rolled kind, so the
-/// second lap of a circuit is not the first one over again.
-/// </summary>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [DisallowMultipleComponent]
 public class SpeedPadSpawner : MonoBehaviour
 {
@@ -177,17 +177,17 @@ public class SpeedPadSpawner : MonoBehaviour
         duration = 2f,
     };
 
-    /// <summary>Tries at a spot inside a zone before the separation rule is allowed to give way.</summary>
+    
     private const int PlacementAttempts = 8;
 
-    /// <summary>
-    /// How far a pad coming back keeps from the bike, as a multiple of the pickup distance.
-    /// A pad that lands on the bike is collected the same frame, which reads as a pad that
-    /// never appeared at all.
-    /// </summary>
+    
+    
+    
+    
+    
     private const float RespawnClearance = 2.5f;
 
-    /// <summary>Seconds before a pad that had nowhere clear to land tries again.</summary>
+    
     private const float RetryDelay = 0.5f;
 
     private Pad[] pads;
@@ -196,16 +196,16 @@ public class SpeedPadSpawner : MonoBehaviour
     private Vector2 lastBike;
     private bool hasSortingLayer;
 
-    /// <summary>The circuit this spawner lays pads on: its own if it has one, else the bike's.</summary>
+    
     public TrackPathSO Road => track != null ? track : (player != null ? player.Track : null);
 
-    /// <summary>
-    /// Pulls a point onto the drivable road: the nearest point on the centreline, offset by
-    /// however far off the line the wanted point was, capped at the half width of the asphalt
-    /// less <see cref="roadMargin"/>. Public because the editor previews landing spots with
-    /// it, and a preview drawn by different arithmetic to the real thing is worse than none.
-    /// </summary>
-    /// <returns>False when there is no baked road to pull the point onto.</returns>
+    
+    
+    
+    
+    
+    
+    
     public bool TryPlace(Vector2 wanted, out Vector2 placed, out Vector2 tangent)
     {
         placed = wanted;
@@ -285,9 +285,9 @@ public class SpeedPadSpawner : MonoBehaviour
         {
             if (!pad.live)
             {
-                // A pad still waiting for its first spot comes out whether or not collected
-                // pads are put back, or a zone the bike happened to be parked on at the
-                // start of the race would go without pads for the whole of it.
+                
+                
+                
                 if ((respawn || pad.waitingForSpot) && now >= pad.readyAt)
                 {
                     Place(pad, bike, now);
@@ -296,10 +296,10 @@ public class SpeedPadSpawner : MonoBehaviour
                 continue;
             }
 
-            // Against the line the bike travelled this frame, not against where it ended up:
-            // at top speed the bike covers a third of a unit a frame, and on a slower machine
-            // several times that, so a pad can sit in the gap between two frames and never be
-            // the nearest thing to either of them.
+            
+            
+            
+            
             if (DistanceToSegment(pad.position, lastBike, bike) <= collectRadius)
             {
                 Collect(pad, now);
@@ -309,7 +309,7 @@ public class SpeedPadSpawner : MonoBehaviour
         lastBike = bike;
     }
 
-    /// <summary>Builds one pad per zone slot and lays them all out for the start of the race.</summary>
+    
     private void Build()
     {
         container = new GameObject($"{name} Pads").transform;
@@ -337,15 +337,15 @@ public class SpeedPadSpawner : MonoBehaviour
 
                 pad.root.SetParent(container, false);
 
-                // Both looks are built once and switched between, rather than the pad being
-                // rebuilt each time it comes back as the other kind. A pad rolls its kind
-                // afresh on every respawn, so that would be a steady drip of instantiation
-                // for the whole race.
+                
+                
+                
+                
                 pad.boostVisual = BuildVisual(boost, pad.root, "Boost");
                 pad.slowVisual = BuildVisual(slowdown, pad.root, "Slowdown");
 
-                // Hidden until it has somewhere to be. Both looks are live at this point and
-                // the pad is still sitting on the world origin, which is not on the road.
+                
+                
                 pad.root.gameObject.SetActive(false);
 
                 pads[index] = pad;
@@ -378,8 +378,8 @@ public class SpeedPadSpawner : MonoBehaviour
             renderer.sortingLayerName = sortingLayer;
         }
 
-        // Scaled to the size asked for in world units, so both kinds come out the same size
-        // on the road however their two sprites happened to be imported.
+        
+        
         if (settings.sprite != null)
         {
             Vector2 drawn = settings.sprite.bounds.size;
@@ -397,11 +397,11 @@ public class SpeedPadSpawner : MonoBehaviour
         return built;
     }
 
-    /// <summary>
-    /// Rolls a kind and a spot for a pad and puts it out. A pad with nowhere clear to land,
-    /// which in practice means the bike is sitting on the only part of the zone that is road,
-    /// stays hidden and tries again shortly rather than appearing under the bike.
-    /// </summary>
+    
+    
+    
+    
+    
     private void Place(Pad pad, Vector2 bike, float now)
     {
         if (!TryFindSpot(pad, bike, out Vector2 placed, out Vector2 tangent))
@@ -437,12 +437,12 @@ public class SpeedPadSpawner : MonoBehaviour
         pad.root.gameObject.SetActive(false);
     }
 
-    /// <summary>
-    /// Looks for somewhere in the zone to land: on the road, clear of the bike, and clear of
-    /// the zone's other pads. Separation from the other pads is the part allowed to give way,
-    /// because a zone barely wider than the separation would otherwise never place its second
-    /// pad at all. Landing clear of the bike is not, and reports failure instead.
-    /// </summary>
+    
+    
+    
+    
+    
+    
     private bool TryFindSpot(Pad pad, Vector2 bike, out Vector2 placed, out Vector2 tangent)
     {
         placed = Vector2.zero;
@@ -504,11 +504,11 @@ public class SpeedPadSpawner : MonoBehaviour
         return true;
     }
 
-    /// <summary>
-    /// A point spread evenly over a circle. The square root is what spreads it: a radius
-    /// picked flat between the centre and the edge crowds the points into the middle, because
-    /// the ring at each radius has more room in it than the one inside it.
-    /// </summary>
+    
+    
+    
+    
+    
     private Vector2 InsideCircle(float radius)
     {
         float angle = (float)random.NextDouble() * Mathf.PI * 2f;
@@ -516,17 +516,17 @@ public class SpeedPadSpawner : MonoBehaviour
         return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
     }
 
-    /// <summary>
-    /// Lying flat, the sprite's own up points down the road, so an arrow drawn up the sprite
-    /// points the way the bike is going. Standing up, the pad squares up to the bike coming
-    /// down the road at it.
-    ///
-    /// Both face away from where the bike will be, which looks backwards written down and is
-    /// not: a sprite is drawn the right way round when its forward runs the same way the
-    /// camera is looking, so the face that ends up towards the rider is the back of the pad's
-    /// forward. Pointing the forward at the rider instead draws the art mirrored, or draws
-    /// nothing at all if the material culls its back.
-    /// </summary>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     private Quaternion Facing(Vector2 tangent)
     {
         Vector3 along = new Vector3(tangent.x, 0f, tangent.y);
@@ -563,7 +563,7 @@ public class SpeedPadSpawner : MonoBehaviour
 
     private static Vector2 Flat(Vector3 position) => new Vector2(position.x, position.z);
 
-    /// <summary>One pad out on the road, or waiting to come back to it.</summary>
+    
     private class Pad
     {
         public SpeedPadZone zone;
@@ -574,10 +574,10 @@ public class SpeedPadSpawner : MonoBehaviour
         public Vector2 position;
         public bool live;
 
-        /// <summary>True while the pad has never found anywhere to land and is still trying.</summary>
+        
         public bool waitingForSpot;
 
-        /// <summary>Time.time this pad may next be put out. Only read while it is not live.</summary>
+        
         public float readyAt;
     }
 }
