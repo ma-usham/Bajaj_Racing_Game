@@ -10,35 +10,16 @@ public struct PrizeClaim
     public string riderName;
     public string phoneNumber;
 
-    
-    
-    
-    
+
     public string claimedAtUtc;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 public static class PrizeClaimStore
 {
     private const string FileName = "prize-claims.json";
 
-    
-    
-    
-    
-    
+
     [Serializable]
     private class Ledger
     {
@@ -47,13 +28,10 @@ public static class PrizeClaimStore
 
     private static Ledger ledger;
 
-    
-    
-    
-    
+
     public static string FilePath => Path.Combine(Application.persistentDataPath, FileName);
 
-    
+
     public static IReadOnlyList<PrizeClaim> Claims
     {
         get
@@ -63,13 +41,7 @@ public static class PrizeClaimStore
         }
     }
 
-    
-    
-    
-    
-    
-    
-    
+
     public static bool Add(string riderName, string phoneNumber, out PrizeClaim stored)
     {
         stored = default;
@@ -96,10 +68,7 @@ public static class PrizeClaimStore
         return true;
     }
 
-    
-    
-    
-    
+
     private static void Load()
     {
         if (ledger != null)
@@ -129,9 +98,7 @@ public static class PrizeClaimStore
             Debug.LogError($"Prize claims at {path} could not be read: {error.Message}");
         }
 
-        
-        
-        
+
         try
         {
             string aside = path + ".unreadable";

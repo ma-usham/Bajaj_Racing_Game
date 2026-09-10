@@ -5,29 +5,27 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class RaceHUD : MonoBehaviour
 {
-    [Header("Source")]
-    [SerializeField] private PlayerController player;
+    [Header("Source")] [SerializeField] private PlayerController player;
 
-    [Header("Speed")]
-    [SerializeField] private TextMeshProUGUI speedLabel;
+    [Header("Speed")] [SerializeField] private TextMeshProUGUI speedLabel;
 
     [Tooltip("Reading shown at top speed. World units are arbitrary here, so the HUD maps the " +
              "bike's 0 to 1 speed onto this instead of converting units per second. Retuning " +
              "maxSpeed on the bike then leaves the headline number alone.")]
-    [SerializeField] private float displayTopSpeed = 120f;
+    [SerializeField]
+    private float displayTopSpeed = 120f;
 
     [SerializeField] private string speedSuffix = "km/h";
 
-    [Header("Lap time")]
-    [SerializeField] private TextMeshProUGUI lapTimeLabel;
+    [Header("Lap time")] [SerializeField] private TextMeshProUGUI lapTimeLabel;
 
     private float lapStartTime;
     private bool lapRunning;
-    
+
     private int shownSpeed = -1;
     private readonly StringBuilder lapTimeBuilder = new StringBuilder(16);
 
-    
+
     public float LapTime => lapRunning ? Time.time - lapStartTime : 0f;
 
     private void Awake()
@@ -58,13 +56,13 @@ public class RaceHUD : MonoBehaviour
         UpdateSpeed();
         UpdateLapTime();
     }
-    
+
     public void BeginLap()
     {
         lapStartTime = Time.time;
         lapRunning = true;
     }
-    
+
     public void StopLap()
     {
         lapRunning = false;
@@ -77,9 +75,7 @@ public class RaceHUD : MonoBehaviour
             return;
         }
 
-        
-        
-        
+
         int reading = Reading(player.SpeedNormalized);
         if (reading == shownSpeed)
         {
@@ -101,19 +97,13 @@ public class RaceHUD : MonoBehaviour
         lapTimeLabel.SetText(lapTimeBuilder);
     }
 
-    
-    
-    
-    
+
     public string FormatSpeed(float normalized) => Reading(normalized) + speedSuffix;
 
     private int Reading(float normalized) =>
         Mathf.RoundToInt(Mathf.Max(normalized, 0f) * displayTopSpeed);
 
-    
-    
-    
-    
+
     public static string FormatTime(float seconds)
     {
         StringBuilder builder = new StringBuilder(16);

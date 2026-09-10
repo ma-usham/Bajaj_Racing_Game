@@ -3,19 +3,11 @@ using UnityEngine;
 
 public enum SpeedPadKind
 {
-    
     Boost,
 
-    
+
     Slowdown,
 }
-
-
-
-
-
-
-
 
 
 [System.Serializable]
@@ -38,13 +30,10 @@ public class SpeedPadZone
 }
 
 
-
-
 [System.Serializable]
 public class SpeedPadSettings
 {
-    [Header("Look")]
-    [Tooltip("Painted flat on the road for this kind of pad. Ignored when a prefab is given.")]
+    [Header("Look")] [Tooltip("Painted flat on the road for this kind of pad. Ignored when a prefab is given.")]
     public Sprite sprite;
 
     [Tooltip("Tint laid over the sprite. Worth using when both kinds share one arrow sprite " +
@@ -75,119 +64,110 @@ public class SpeedPadSettings
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 [DisallowMultipleComponent]
 public class SpeedPadSpawner : MonoBehaviour
 {
     [Header("Scene")]
     [Tooltip("The bike. Pads read its position to know when they have been driven over, and " +
              "hand it the change of pace when they have.")]
-    [SerializeField] private PlayerController player;
+    [SerializeField]
+    private PlayerController player;
 
     [Tooltip("Baked centreline of the circuit, the same asset the bike holds. Left empty, the " +
              "bike's own is used, which is one less thing to keep in step.")]
-    [SerializeField] private TrackPathSO track;
+    [SerializeField]
+    private TrackPathSO track;
 
     [Header("Zones")]
     [Tooltip("Where pads are allowed to land. Fill in a position and a radius per zone, or " +
              "select this object and shift click the road in the scene view to drop one.")]
-    [SerializeField] private SpeedPadZone[] zones = new SpeedPadZone[0];
+    [SerializeField]
+    private SpeedPadZone[] zones = new SpeedPadZone[0];
 
     [Header("Placement")]
     [Tooltip("How far inside the edge of the road a pad is kept, in world units. Roughly half " +
              "the pad's own width, or a pad hangs over the kerb where the road bends.")]
-    [SerializeField] private float roadMargin = 2f;
+    [SerializeField]
+    private float roadMargin = 2f;
 
     [Tooltip("How far apart two pads from the same zone are kept, in world units. Only bites " +
              "on a zone holding more than one pad, and gives way rather than leaving a hole " +
              "if the zone is too small to honour it.")]
-    [SerializeField] private float minSeparation = 6f;
+    [SerializeField]
+    private float minSeparation = 6f;
 
     [Tooltip("How far above the road a pad sits, in world units. Just enough to clear the " +
              "Track sprite. An upright pad wants raising to about half its own height.")]
-    [SerializeField] private float padHeight = 0.05f;
+    [SerializeField]
+    private float padHeight = 0.05f;
 
     [Tooltip("On paints the pad flat on the road pointing down the racing direction, which is " +
              "what an arrow or an oil slick wants. Off stands it upright facing the oncoming " +
              "bike, which is what a floating pickup wants.")]
-    [SerializeField] private bool layFlat = true;
+    [SerializeField]
+    private bool layFlat = true;
 
     [Tooltip("Sorting layer the pad is drawn on. Ground puts it in with the road; the bike is " +
              "on Player and so still draws over the top of it.")]
-    [SerializeField] private string sortingLayer = "Ground";
+    [SerializeField]
+    private string sortingLayer = "Ground";
 
     [Tooltip("Order within that layer. The Track sprite is on 1, so anything above that paints " +
              "on top of the road rather than under it.")]
-    [SerializeField] private int sortingOrder = 2;
+    [SerializeField]
+    private int sortingOrder = 2;
 
     [Header("Mix")]
     [Tooltip("Share of pads that come up as a boost. 1 is all boosts, 0 all slowdowns, and " +
              "every pad is rolled on its own, so a handful of pads can still come up all one way.")]
     [Range(0f, 1f)]
-    [SerializeField] private float boostShare = 0.5f;
+    [SerializeField]
+    private float boostShare = 0.5f;
 
     [Tooltip("Seed for the scatter. 0 leaves it to the clock and every run is laid out " +
              "differently; anything else gives the same layout every run, which is what " +
              "tuning a lap or chasing a bug wants.")]
-    [SerializeField] private int seed;
+    [SerializeField]
+    private int seed;
 
     [Header("Pickup")]
     [Tooltip("How near the bike has to pass for a pad to count as driven over, in world units. " +
              "Wants to be about half the pad's width, or pads read as collected off to one side.")]
-    [SerializeField] private float collectRadius = 2.5f;
+    [SerializeField]
+    private float collectRadius = 2.5f;
 
     [Tooltip("On puts a collected pad back out, in a new spot in its own zone and with a newly " +
              "rolled kind. Off is one pad per zone per race.")]
-    [SerializeField] private bool respawn = true;
+    [SerializeField]
+    private bool respawn = true;
 
     [Tooltip("Seconds before a collected pad comes back. Wants to be long enough that the bike " +
              "is somewhere else on the circuit by then.")]
     [Min(0f)]
-    [SerializeField] private float respawnDelay = 8f;
-
-    [Header("Boost")]
     [SerializeField]
-    private SpeedPadSettings boost = new SpeedPadSettings
+    private float respawnDelay = 8f;
+
+    [Header("Boost")] [SerializeField] private SpeedPadSettings boost = new SpeedPadSettings
     {
         tint = new Color(0.35f, 1f, 0.55f),
         speedMultiplier = 1.5f,
         duration = 2.5f,
     };
 
-    [Header("Slowdown")]
-    [SerializeField]
-    private SpeedPadSettings slowdown = new SpeedPadSettings
+    [Header("Slowdown")] [SerializeField] private SpeedPadSettings slowdown = new SpeedPadSettings
     {
         tint = new Color(1f, 0.45f, 0.3f),
         speedMultiplier = 0.55f,
         duration = 2f,
     };
 
-    
+
     private const int PlacementAttempts = 8;
 
-    
-    
-    
-    
-    
+
     private const float RespawnClearance = 2.5f;
 
-    
+
     private const float RetryDelay = 0.5f;
 
     private Pad[] pads;
@@ -196,16 +176,10 @@ public class SpeedPadSpawner : MonoBehaviour
     private Vector2 lastBike;
     private bool hasSortingLayer;
 
-    
+
     public TrackPathSO Road => track != null ? track : (player != null ? player.Track : null);
 
-    
-    
-    
-    
-    
-    
-    
+
     public bool TryPlace(Vector2 wanted, out Vector2 placed, out Vector2 tangent)
     {
         placed = wanted;
@@ -285,9 +259,6 @@ public class SpeedPadSpawner : MonoBehaviour
         {
             if (!pad.live)
             {
-                
-                
-                
                 if ((respawn || pad.waitingForSpot) && now >= pad.readyAt)
                 {
                     Place(pad, bike, now);
@@ -296,10 +267,7 @@ public class SpeedPadSpawner : MonoBehaviour
                 continue;
             }
 
-            
-            
-            
-            
+
             if (DistanceToSegment(pad.position, lastBike, bike) <= collectRadius)
             {
                 Collect(pad, now);
@@ -309,7 +277,7 @@ public class SpeedPadSpawner : MonoBehaviour
         lastBike = bike;
     }
 
-    
+
     private void Build()
     {
         container = new GameObject($"{name} Pads").transform;
@@ -337,15 +305,11 @@ public class SpeedPadSpawner : MonoBehaviour
 
                 pad.root.SetParent(container, false);
 
-                
-                
-                
-                
+
                 pad.boostVisual = BuildVisual(boost, pad.root, "Boost");
                 pad.slowVisual = BuildVisual(slowdown, pad.root, "Slowdown");
 
-                
-                
+
                 pad.root.gameObject.SetActive(false);
 
                 pads[index] = pad;
@@ -378,8 +342,7 @@ public class SpeedPadSpawner : MonoBehaviour
             renderer.sortingLayerName = sortingLayer;
         }
 
-        
-        
+
         if (settings.sprite != null)
         {
             Vector2 drawn = settings.sprite.bounds.size;
@@ -397,11 +360,7 @@ public class SpeedPadSpawner : MonoBehaviour
         return built;
     }
 
-    
-    
-    
-    
-    
+
     private void Place(Pad pad, Vector2 bike, float now)
     {
         if (!TryFindSpot(pad, bike, out Vector2 placed, out Vector2 tangent))
@@ -437,12 +396,7 @@ public class SpeedPadSpawner : MonoBehaviour
         pad.root.gameObject.SetActive(false);
     }
 
-    
-    
-    
-    
-    
-    
+
     private bool TryFindSpot(Pad pad, Vector2 bike, out Vector2 placed, out Vector2 tangent)
     {
         placed = Vector2.zero;
@@ -504,11 +458,7 @@ public class SpeedPadSpawner : MonoBehaviour
         return true;
     }
 
-    
-    
-    
-    
-    
+
     private Vector2 InsideCircle(float radius)
     {
         float angle = (float)random.NextDouble() * Mathf.PI * 2f;
@@ -516,17 +466,7 @@ public class SpeedPadSpawner : MonoBehaviour
         return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     private Quaternion Facing(Vector2 tangent)
     {
         Vector3 along = new Vector3(tangent.x, 0f, tangent.y);
@@ -563,7 +503,7 @@ public class SpeedPadSpawner : MonoBehaviour
 
     private static Vector2 Flat(Vector3 position) => new Vector2(position.x, position.z);
 
-    
+
     private class Pad
     {
         public SpeedPadZone zone;
@@ -574,10 +514,10 @@ public class SpeedPadSpawner : MonoBehaviour
         public Vector2 position;
         public bool live;
 
-        
+
         public bool waitingForSpot;
 
-        
+
         public float readyAt;
     }
 }

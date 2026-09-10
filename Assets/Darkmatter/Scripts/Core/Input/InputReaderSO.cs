@@ -7,6 +7,7 @@ public class InputReaderSO : ScriptableObject, GameInput.IPlayerActions
     public float Steer { get; private set; }
     public bool IsBraking { get; private set; }
     private GameInput gameInput;
+
     public void Enable()
     {
         if (gameInput == null)
@@ -17,6 +18,7 @@ public class InputReaderSO : ScriptableObject, GameInput.IPlayerActions
 
         gameInput.Player.Enable();
     }
+
     public void Disable()
     {
         Steer = 0f;
@@ -24,7 +26,7 @@ public class InputReaderSO : ScriptableObject, GameInput.IPlayerActions
 
         gameInput?.Player.Disable();
     }
-    
+
     private void OnDisable()
     {
         Steer = 0f;

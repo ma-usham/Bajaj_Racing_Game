@@ -1,35 +1,24 @@
 using UnityEngine;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 [DisallowMultipleComponent]
 public class CameraFollow : MonoBehaviour
 {
     [SerializeField] private PlayerController target;
 
-    [Tooltip("Seconds for the camera to swing back in line behind the bike after a turn.")]
-    [SerializeField] private float yawSmoothTime = 0.25f;
+    [Tooltip("Seconds for the camera to swing back in line behind the bike after a turn.")] [SerializeField]
+    private float yawSmoothTime = 0.25f;
 
     [Header("Speed")]
     [Tooltip("Degrees of field of view added at top speed, on top of whatever the camera was " +
              "authored with. Set to 0 to hold the lens still.")]
-    [SerializeField] private float speedFieldOfViewGain = 12f;
+    [SerializeField]
+    private float speedFieldOfViewGain = 12f;
 
     [Tooltip("Seconds for the lens to catch up to a change in speed. Deliberately slower than " +
              "the bike, so the widening reads as building speed rather than tracking the throttle.")]
-    [SerializeField] private float fieldOfViewSmoothTime = 0.4f;
+    [SerializeField]
+    private float fieldOfViewSmoothTime = 0.4f;
 
     private float pitch;
     private float yaw;
@@ -54,13 +43,12 @@ public class CameraFollow : MonoBehaviour
         pitch = angles.x;
         yaw = angles.y;
 
-        
+
         Vector3 offset = transform.position - target.transform.position;
         height = offset.y;
         followDistance = new Vector2(offset.x, offset.z).magnitude;
 
-        
-        
+
         view = GetComponent<Camera>();
         if (view != null)
         {
@@ -68,17 +56,9 @@ public class CameraFollow : MonoBehaviour
         }
     }
 
-    
-    
-    
-    
+
     private void LateUpdate()
     {
-        
-        
-        
-        
-        
         if (!target.isActiveAndEnabled)
         {
             return;
@@ -90,12 +70,7 @@ public class CameraFollow : MonoBehaviour
         UpdateFieldOfView();
     }
 
-    
-    
-    
-    
-    
-    
+
     public void SnapToTarget()
     {
         if (target == null)
@@ -107,8 +82,7 @@ public class CameraFollow : MonoBehaviour
         yawVelocity = 0f;
         ApplyFraming();
 
-        
-        
+
         fieldOfViewVelocity = 0f;
         if (view != null && !view.orthographic)
         {
@@ -116,10 +90,7 @@ public class CameraFollow : MonoBehaviour
         }
     }
 
-    
-    
-    
-    
+
     private void ApplyFraming()
     {
         Quaternion orbit = Quaternion.Euler(0f, yaw, 0f);
@@ -129,15 +100,7 @@ public class CameraFollow : MonoBehaviour
         transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     private void UpdateFieldOfView()
     {
         if (view == null || view.orthographic || speedFieldOfViewGain == 0f)
@@ -147,6 +110,6 @@ public class CameraFollow : MonoBehaviour
 
         float wanted = baseFieldOfView + speedFieldOfViewGain * Mathf.Clamp01(target.SpeedNormalized);
         view.fieldOfView = Mathf.SmoothDamp(view.fieldOfView, wanted,
-                                            ref fieldOfViewVelocity, fieldOfViewSmoothTime);
+            ref fieldOfViewVelocity, fieldOfViewSmoothTime);
     }
 }

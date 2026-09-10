@@ -3,67 +3,87 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class PlayerController : MonoBehaviour
 {
-    [Header("Input")]
-    [SerializeField] private InputReaderSO inputReader;
+    [Header("Input")] [SerializeField] private InputReaderSO inputReader;
 
     [Header("Speed")]
     [Tooltip("Top speed in units per second. The circuit is only 76.8 units across, so this wants to stay low.")]
-    [SerializeField] private float maxSpeed = 9f;
+    [SerializeField]
+    private float maxSpeed = 9f;
 
-    [Tooltip("How quickly the bike builds up to top speed, in units per second squared.")]
-    [SerializeField] private float acceleration = 6f;
+    [Tooltip("How quickly the bike builds up to top speed, in units per second squared.")] [SerializeField]
+    private float acceleration = 6f;
 
-    [Tooltip("How quickly the brake sheds speed, in units per second squared.")]
-    [SerializeField] private float brakeDeceleration = 25f;
+    [Tooltip("How quickly the brake sheds speed, in units per second squared.")] [SerializeField]
+    private float brakeDeceleration = 25f;
 
     [Tooltip("Share of top speed the brake bleeds down to instead of stopping the bike dead. " +
              "0.35 leaves enough speed to still steer through a corner; 0 brings it to a halt.")]
     [Range(0f, 1f)]
-    [SerializeField] private float brakeFloor = 0.35f;
+    [SerializeField]
+    private float brakeFloor = 0.35f;
 
     [Header("Speed pads")]
     [Tooltip("How quickly a pad's change of pace takes hold, in units per second squared. " +
              "Deliberately sharper than the throttle and the brake, or driving over a pad " +
              "reads as the bike accelerating normally rather than as a shove in the back.")]
-    [SerializeField] private float padResponse = 30f;
+    [SerializeField]
+    private float padResponse = 30f;
 
     [Header("Steering")]
     [Tooltip("Tightest circle the bike can carve, in units, at full lock. Smaller turns harder. " +
              "A hairpin on a 76.8 unit circuit wants roughly 6 to 10.")]
-    [SerializeField] private float minTurnRadius = 8f;
+    [SerializeField]
+    private float minTurnRadius = 8f;
 
-    [Tooltip("How quickly steering input eases in and out. Lower is floatier.")]
-    [SerializeField] private float steerResponse = 5f;
+    [Tooltip("How quickly steering input eases in and out. Lower is floatier.")] [SerializeField]
+    private float steerResponse = 5f;
 
-    [Tooltip("Bank angle in degrees at full lean.")]
-    [SerializeField] private float maxLeanAngle = 20f;
+    [Tooltip("Bank angle in degrees at full lean.")] [SerializeField]
+    private float maxLeanAngle = 20f;
 
-    [Tooltip("How quickly the bike rolls into and out of a lean. Lower is heavier.")]
-    [SerializeField] private float leanResponse = 6f;
+    [Tooltip("How quickly the bike rolls into and out of a lean. Lower is heavier.")] [SerializeField]
+    private float leanResponse = 6f;
+
+    [Header("Wheels")]
+    [Tooltip("Optional. The wheel animation, taken from this object if left empty.")]
+    [SerializeField]
+    private Animator wheels;
+
+    [Tooltip("How fast the wheel clip plays at the bike's own top speed. Slower speeds are a " +
+             "straight fraction of it, and a boost pad goes past it. Multiplies with the Speed " +
+             "on the animation state itself, so leave that at 1 and tune it here.")]
+    [Min(0f)]
+    [SerializeField]
+    private float wheelPlaybackAtTopSpeed = 5f;
 
     [Header("Barrier")]
     [Tooltip("Baked centreline of the circuit. The road is only pixels on the Track sprite, " +
              "so without this the bike has nothing to tell it where the asphalt ends.")]
-    [SerializeField] private TrackPathSO track;
+    [SerializeField]
+    private TrackPathSO track;
 
     [Tooltip("How far inside the edge of the asphalt the barrier sits, in units. Roughly half " +
              "the bike's width, so the sprite does not hang out over the kerb. The baked half " +
              "width is already the narrowest the road gets, so this does not want to be large.")]
-    [SerializeField] private float barrierMargin = 0.7f;
+    [SerializeField]
+    private float barrierMargin = 0.7f;
 
     [Tooltip("Speed the barrier scrapes off per second when the bike hits it square on, in " +
              "units per second squared. A glancing hit costs proportionally less. Wants to " +
              "rise with maxSpeed, or a scrape stops reading as one.")]
-    [SerializeField] private float scrapeDeceleration = 25f;
+    [SerializeField]
+    private float scrapeDeceleration = 25f;
 
     [Tooltip("Share of top speed a scrape bleeds down to. The bike keeps moving along the " +
              "barrier rather than sticking to it.")]
     [Range(0f, 1f)]
-    [SerializeField] private float scrapeSpeedFloor = 0.45f;
+    [SerializeField]
+    private float scrapeSpeedFloor = 0.45f;
 
     [Tooltip("Degrees per second the barrier turns the bike back in line with itself, at a " +
              "square-on hit. 0 leaves the bike pointing into the wall while it slides along.")]
-    [SerializeField] private float scrapeSteer = 150f;
+    [SerializeField]
+    private float scrapeSteer = 150f;
 
     private float pitch;
     private float heading;
@@ -78,44 +98,35 @@ public class PlayerController : MonoBehaviour
     private Vector3 startPosition;
     private float startHeading;
     private float topSpeed;
-    
+
     public bool Scraping { get; private set; }
 
     public float CurrentSpeed => currentSpeed;
 
-    
-    
-    
-    
+
     public float SpeedNormalized => maxSpeed > 0f ? currentSpeed / maxSpeed : 0f;
     public float DistanceTravelled => distanceTravelled;
     public float Heading => heading;
     public float Lean => lean;
     public Vector3 Forward => Quaternion.Euler(0f, heading, 0f) * Vector3.forward;
 
-    
+
     public TrackPathSO Track => track;
 
-    
+
     public float SpeedMultiplier => padMultiplier;
 
-    
+
     public float PadTimeRemaining => padRemaining;
 
     public bool Boosting => padRemaining > 0f && padMultiplier > 1f;
 
     public bool Slowed => padRemaining > 0f && padMultiplier < 1f;
 
-    
-    
-    
-    
+
     public float TopSpeedNormalized => maxSpeed > 0f ? topSpeed / maxSpeed : 0f;
 
-    
-    
-    
-    
+
     public bool Held { get; private set; }
 
     private void Awake()
@@ -129,14 +140,24 @@ public class PlayerController : MonoBehaviour
         {
             Debug.LogWarning($"{name}: no baked TrackPathSO assigned, the bike will ride off the road.", this);
         }
+
         Vector3 angles = transform.rotation.eulerAngles;
         pitch = angles.x;
         heading = angles.y;
 
-        
-        
+
         startPosition = transform.position;
         startHeading = heading;
+
+        if (wheels == null)
+        {
+            wheels = GetComponent<Animator>();
+        }
+
+        if (wheels != null)
+        {
+            wheels.speed = 0f;
+        }
     }
 
     private void OnEnable()
@@ -155,11 +176,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    
-    
-    
-    
-    
+
     public void HoldOnLine()
     {
         Held = true;
@@ -169,19 +186,13 @@ public class PlayerController : MonoBehaviour
         ClearSpeedModifier();
     }
 
-    
+
     public void Release()
     {
         Held = false;
     }
 
-    
-    
-    
-    
-    
-    
-    
+
     public void ReturnToLine()
     {
         heading = startHeading;
@@ -203,24 +214,33 @@ public class PlayerController : MonoBehaviour
 
         if (Held)
         {
-            
-            
-            
             currentSpeed = 0f;
             lean = Mathf.Lerp(lean, 0f, 1f - Mathf.Exp(-leanResponse * deltaTime));
             transform.rotation = Quaternion.Euler(pitch, heading, 0f)
                                  * Quaternion.Euler(0f, 0f, -lean);
+            SpinWheels();
             return;
         }
 
         UpdateSpeed(deltaTime);
         UpdateSteering(deltaTime);
         transform.position = KeepOnRoad(transform.position + Forward * (currentSpeed * deltaTime),
-                                        deltaTime);
+            deltaTime);
         transform.rotation = Quaternion.Euler(pitch, heading, 0f)
                              * Quaternion.Euler(0f, 0f, -lean);
+        SpinWheels();
     }
     
+    private void SpinWheels()
+    {
+        if (wheels == null)
+        {
+            return;
+        }
+
+        wheels.speed = wheelPlaybackAtTopSpeed * SpeedNormalized;
+    }
+
     private Vector3 KeepOnRoad(Vector3 position, float deltaTime)
     {
         Scraping = false;
@@ -243,37 +263,29 @@ public class PlayerController : MonoBehaviour
         }
 
         Scraping = true;
-        
+
         Vector2 outward = strayed > 1e-4f
             ? offset / strayed
             : new Vector2(-tangent.y, tangent.x);
-        
+
         Vector2 travel = new Vector2(Forward.x, Forward.z);
         Vector2 along = new Vector2(-outward.y, outward.x);
         if (Vector2.Dot(travel, along) < 0f)
         {
             along = -along;
         }
-        
+
         scrapeIncidence = Mathf.Abs(Vector2.Dot(travel, outward));
 
         float barrierHeading = Mathf.Atan2(along.x, along.y) * Mathf.Rad2Deg;
         heading = Mathf.MoveTowardsAngle(heading, barrierHeading,
-                                         scrapeSteer * scrapeIncidence * deltaTime);
+            scrapeSteer * scrapeIncidence * deltaTime);
 
         Vector2 held = centre + outward * limit;
         return new Vector3(held.x, position.y, held.y);
     }
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     public void ApplySpeedModifier(float multiplier, float duration)
     {
         if (multiplier <= 0f || duration <= 0f)
@@ -285,7 +297,7 @@ public class PlayerController : MonoBehaviour
         padRemaining = duration;
     }
 
-    
+
     public void ClearSpeedModifier()
     {
         padMultiplier = 1f;
@@ -306,10 +318,7 @@ public class PlayerController : MonoBehaviour
         bool padRunning = padRemaining > 0f;
         bool braking = inputReader != null && inputReader.IsBraking;
 
-        
-        
-        
-        
+
         float targetSpeed = braking
             ? Mathf.Min(currentSpeed, brakeFloor * maxSpeed)
             : maxSpeed * padMultiplier;
@@ -338,20 +347,20 @@ public class PlayerController : MonoBehaviour
             topSpeed = currentSpeed;
         }
     }
-    
+
     private void UpdateSteering(float deltaTime)
     {
         float steerInput = inputReader != null ? Mathf.Clamp(inputReader.Steer, -1f, 1f) : 0f;
         steer = Mathf.MoveTowards(steer, steerInput, steerResponse * deltaTime);
 
         float radius = Mathf.Max(minTurnRadius, 0.01f);
-        float yawRate = steer * currentSpeed / radius; 
+        float yawRate = steer * currentSpeed / radius;
         heading += yawRate * Mathf.Rad2Deg * deltaTime;
-        
+
         float targetLean = steerInput * maxLeanAngle;
         lean = Mathf.Lerp(lean, targetLean, 1f - Mathf.Exp(-leanResponse * deltaTime));
     }
-    
+
     private void OnDrawGizmosSelected()
     {
         if (track == null || !track.IsValid)

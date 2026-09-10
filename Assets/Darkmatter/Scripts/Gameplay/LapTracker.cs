@@ -4,16 +4,17 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class LapTracker : MonoBehaviour
 {
-    [Tooltip("The bike. Its position is what gets measured against the line.")]
-    [SerializeField] private PlayerController player;
+    [Tooltip("The bike. Its position is what gets measured against the line.")] [SerializeField]
+    private PlayerController player;
 
     [Tooltip("The circuit. Left empty, the bike's own is used, which keeps the lap and the " +
              "barrier measured against the same road.")]
-    [SerializeField] private TrackPathSO track;
-    
+    [SerializeField]
+    private TrackPathSO track;
+
     public int LapsCompleted { get; private set; }
     public float LapDistance { get; private set; }
-    
+
     public float LapProgress => Length > 0f ? Mathf.Clamp01(LapDistance / Length) : 0f;
     public bool Running { get; private set; }
 
@@ -41,7 +42,7 @@ public class LapTracker : MonoBehaviour
             enabled = false;
         }
     }
-    
+
     public void Begin()
     {
         if (cumulative == null && !Measure())
@@ -49,17 +50,17 @@ public class LapTracker : MonoBehaviour
             return;
         }
 
-        segmentHint = -1;                      
+        segmentHint = -1;
         lastDistance = DistanceAlong(Flat(player.transform.position));
         LapDistance = 0f;
         Running = true;
     }
-    
+
     public void Stop()
     {
         Running = false;
     }
-    
+
     public void ResetLaps()
     {
         LapsCompleted = 0;
@@ -75,7 +76,7 @@ public class LapTracker : MonoBehaviour
         }
 
         float here = DistanceAlong(Flat(player.transform.position));
-        
+
         float step = Mathf.Repeat(here - lastDistance + Length * 0.5f, Length) - Length * 0.5f;
         lastDistance = here;
         LapDistance += step;
@@ -84,11 +85,12 @@ public class LapTracker : MonoBehaviour
         {
             return;
         }
-        
+
         LapDistance -= Length;
         LapsCompleted++;
         LapCompleted?.Invoke(LapsCompleted);
     }
+
     private bool Measure()
     {
         TrackPathSO road = Road;
@@ -106,7 +108,7 @@ public class LapTracker : MonoBehaviour
         Length = cumulative[road.SegmentCount];
         return Length > 0f;
     }
-    
+
     private float DistanceAlong(Vector2 position)
     {
         TrackPathSO road = Road;

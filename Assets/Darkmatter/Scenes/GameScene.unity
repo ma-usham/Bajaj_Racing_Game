@@ -5159,6 +5159,8 @@ MonoBehaviour:
   steerResponse: 3.5
   maxLeanAngle: 20
   leanResponse: 5
+  wheels: {fileID: 830000002}
+  wheelPlaybackAtTopSpeed: 5
   track: {fileID: 11400000, guid: 4d81b0a67c2e49f4b8d3e5a1f062c7d9, type: 2}
   barrierMargin: -1
   scrapeDeceleration: 5

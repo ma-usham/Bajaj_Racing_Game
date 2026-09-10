@@ -2,8 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-
-
 [System.Serializable]
 public class BillboardGroup
 {
@@ -30,43 +28,17 @@ public class BillboardGroup
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 [DefaultExecutionOrder(100)]
 [DisallowMultipleComponent]
 public class PropBillboards : MonoBehaviour
 {
-    [Tooltip("The camera the props turn to. Left empty, the main camera is used.")]
-    [SerializeField] private Camera view;
+    [Tooltip("The camera the props turn to. Left empty, the main camera is used.")] [SerializeField]
+    private Camera view;
 
-    [Tooltip("The scenery, split by how freely it may turn. One group per kind of prop.")]
-    [SerializeField] private BillboardGroup[] groups = new BillboardGroup[0];
+    [Tooltip("The scenery, split by how freely it may turn. One group per kind of prop.")] [SerializeField]
+    private BillboardGroup[] groups = new BillboardGroup[0];
 
-    
+
     private const float FullSwing = 179.9f;
 
     private Transform[] props;
@@ -101,13 +73,7 @@ public class PropBillboards : MonoBehaviour
         }
     }
 
-    
-    
-    
-    
-    
-    
-    
+
     public void Refresh()
     {
         List<Transform> found = new List<Transform>();
@@ -152,7 +118,7 @@ public class PropBillboards : MonoBehaviour
 
         lastYaw = cameraYaw;
 
-        
+
         Quaternion square = Quaternion.Euler(0f, cameraYaw, 0f);
 
         for (int i = 0; i < props.Length; i++)

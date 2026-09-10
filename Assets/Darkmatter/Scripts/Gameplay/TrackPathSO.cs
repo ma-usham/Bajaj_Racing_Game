@@ -1,56 +1,34 @@
 using UnityEngine;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 [CreateAssetMenu(fileName = "TrackPathSO", menuName = "Scriptable Objects/TrackPathSO")]
 public class TrackPathSO : ScriptableObject
 {
-    [Tooltip("Centreline of the road in world XZ, ordered along the racing direction.")]
-    [SerializeField] private Vector2[] points;
+    [Tooltip("Centreline of the road in world XZ, ordered along the racing direction.")] [SerializeField]
+    private Vector2[] points;
 
     [Tooltip("Half the width of the road in world units. The barrier sits this far either " +
              "side of the line, so the road is this wide the whole way along.")]
-    [SerializeField] private float halfWidth = 4f;
+    [SerializeField]
+    private float halfWidth = 4f;
 
     [Tooltip("Off for a road with two ends, drawn start to finish. On joins the last point " +
              "back to the first for a circuit, which is worth it only when the road really " +
              "does come back round on itself.")]
-    [SerializeField] private bool closedLoop;
+    [SerializeField]
+    private bool closedLoop;
 
     [Tooltip("Length of the road in world units, measured along the centreline. One lap, " +
              "for a closed loop.")]
-    [SerializeField] private float lapLength;
+    [SerializeField]
+    private float lapLength;
 
-    
+
     private const int SearchWindow = 6;
 
     public int Count => points != null ? points.Length : 0;
 
-    
-    
-    
-    
+
     public int SegmentCount => closedLoop ? Count : Mathf.Max(Count - 1, 0);
 
     public bool ClosedLoop => closedLoop;
@@ -63,22 +41,7 @@ public class TrackPathSO : ScriptableObject
 
     public Vector2 GetPoint(int index) => points[PointIndex(index)];
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
     public int Sample(Vector2 position, int searchHint, out Vector2 centre, out Vector2 tangent)
     {
         int best = 0;
@@ -92,10 +55,7 @@ public class TrackPathSO : ScriptableObject
                 Consider(position, SegmentIndex(searchHint + offset), ref best, ref bestSqr, ref bestT);
             }
 
-            
-            
-            
-            
+
             float reach = halfWidth * 3f;
             if (Mathf.Abs(Shortest(best - searchHint)) >= SearchWindow || bestSqr > reach * reach)
             {
@@ -137,7 +97,7 @@ public class TrackPathSO : ScriptableObject
         }
     }
 
-    
+
     private int PointIndex(int index)
     {
         int count = points.Length;
@@ -149,7 +109,7 @@ public class TrackPathSO : ScriptableObject
         return closedLoop ? ((index % count) + count) % count : Mathf.Clamp(index, 0, count - 1);
     }
 
-    
+
     private int SegmentIndex(int index)
     {
         int count = SegmentCount;
@@ -161,10 +121,7 @@ public class TrackPathSO : ScriptableObject
         return closedLoop ? ((index % count) + count) % count : Mathf.Clamp(index, 0, count - 1);
     }
 
-    
-    
-    
-    
+
     private int Shortest(int delta)
     {
         if (!closedLoop)

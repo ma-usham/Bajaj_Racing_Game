@@ -7,21 +7,19 @@ public class AudioManager : MonoBehaviour
 
     [Header("Sources")]
     [Tooltip("Looping source for background music. Created automatically when left empty.")]
-    [SerializeField] private AudioSource musicSource;
-    
-    [Tooltip("Source used for one-shot effects. Created automatically when left empty.")]
-    [SerializeField] private AudioSource sfxSource;
+    [SerializeField]
+    private AudioSource musicSource;
 
-    [Header("Music")]
-    [Tooltip("Played on startup. Leave empty to start silent.")]
-    [SerializeField] private AudioClip backgroundMusic;
+    [Tooltip("Source used for one-shot effects. Created automatically when left empty.")] [SerializeField]
+    private AudioSource sfxSource;
 
-    [Header("Volume")]
-    [Range(0f, 1f)]
-    [SerializeField] private float musicVolume = 1f;
+    [Header("Music")] [Tooltip("Played on startup. Leave empty to start silent.")] [SerializeField]
+    private AudioClip backgroundMusic;
 
-    [Range(0f, 1f)]
-    [SerializeField] private float sfxVolume = 1f;
+    [Header("Volume")] [Range(0f, 1f)] [SerializeField]
+    private float musicVolume = 1f;
+
+    [Range(0f, 1f)] [SerializeField] private float sfxVolume = 1f;
 
     public AudioClip CurrentMusic => musicSource != null ? musicSource.clip : null;
 
@@ -54,6 +52,7 @@ public class AudioManager : MonoBehaviour
             Instance = null;
         }
     }
+
     public void PlayMusic(AudioClip clip)
     {
         if (clip == null)
@@ -76,7 +75,7 @@ public class AudioManager : MonoBehaviour
         musicSource.Stop();
         musicSource.clip = null;
     }
-    
+
     public void PlaySfx(AudioClip clip)
     {
         if (clip == null)
@@ -87,19 +86,19 @@ public class AudioManager : MonoBehaviour
 
         sfxSource.PlayOneShot(clip);
     }
-    
+
     public void SetMusicVolume(float volume)
     {
         musicVolume = Mathf.Clamp01(volume);
         musicSource.volume = musicVolume;
     }
-    
+
     public void SetSfxVolume(float volume)
     {
         sfxVolume = Mathf.Clamp01(volume);
         sfxSource.volume = sfxVolume;
     }
-    
+
     private AudioSource PrepareSource(AudioSource source, bool loop, float volume)
     {
         if (source == null)

@@ -3,34 +3,21 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-
-
-
-
-
-
-
-
-
-
 [DisallowMultipleComponent]
 public class PrizeClaimUI : MonoBehaviour
 {
-    [Header("Form")]
-    [SerializeField] private TMP_InputField nameField;
+    [Header("Form")] [SerializeField] private TMP_InputField nameField;
     [SerializeField] private TMP_InputField phoneField;
 
     [Tooltip("Stores what was typed. Wired up here rather than in the inspector, so it cannot " +
              "come unstuck when the button is renamed or the scene is merged.")]
-    [SerializeField] private Button submitButton;
+    [SerializeField]
+    private Button submitButton;
 
-    
+
     public bool HasClaimed { get; private set; }
 
-    
-    
-    
-    
+
     public PrizeClaim LastClaim { get; private set; }
 
     private void Awake()
@@ -61,10 +48,7 @@ public class PrizeClaimUI : MonoBehaviour
         }
     }
 
-    
-    
-    
-    
+
     private void OnEnable()
     {
         HasClaimed = false;
@@ -83,10 +67,7 @@ public class PrizeClaimUI : MonoBehaviour
         Refresh();
     }
 
-    
-    
-    
-    
+
     public void Submit()
     {
         if (HasClaimed)
@@ -99,8 +80,6 @@ public class PrizeClaimUI : MonoBehaviour
 
         if (!PrizeClaimStore.Add(typedName, typedPhone, out PrizeClaim stored))
         {
-            
-            
             Refresh();
             return;
         }
@@ -128,6 +107,6 @@ public class PrizeClaimUI : MonoBehaviour
     private bool HasBothFields()
     {
         return nameField != null && !string.IsNullOrWhiteSpace(nameField.text)
-               && phoneField != null && !string.IsNullOrWhiteSpace(phoneField.text);
+                                 && phoneField != null && !string.IsNullOrWhiteSpace(phoneField.text);
     }
 }

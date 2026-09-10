@@ -20,10 +20,7 @@ public class RiderSelectionUI : MonoBehaviour
     public bool HasSelection => SelectedRiderIndex != NoRiderSelected;
     public int RiderCount => riders.Count;
 
-    
-    
-    
-    
+
     public Button RaceButton => letsRaceButton;
 
     private void Awake()
