@@ -1,55 +1,58 @@
-using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine;
 
-[CreateAssetMenu(fileName = "InputReaderSO", menuName = "Scriptable Objects/InputReaderSO")]
-public class InputReaderSO : ScriptableObject, GameInput.IPlayerActions
+namespace Darkmatter.Core
 {
-    public float Steer { get; private set; }
-    public bool IsBraking { get; private set; }
-    private GameInput gameInput;
-
-    public void Enable()
+    [CreateAssetMenu(fileName = "InputReaderSO", menuName = "Scriptable Objects/InputReaderSO")]
+    public class InputReaderSO : ScriptableObject, GameInput.IPlayerActions
     {
-        if (gameInput == null)
+        public float Steer { get; private set; }
+        public bool IsBraking { get; private set; }
+        private GameInput gameInput;
+
+        public void Enable()
         {
-            gameInput = new GameInput();
-            gameInput.Player.AddCallbacks(this);
+            if (gameInput == null)
+            {
+                gameInput = new GameInput();
+                gameInput.Player.AddCallbacks(this);
+            }
+
+            gameInput.Player.Enable();
         }
 
-        gameInput.Player.Enable();
-    }
-
-    public void Disable()
-    {
-        Steer = 0f;
-        IsBraking = false;
-
-        gameInput?.Player.Disable();
-    }
-
-    private void OnDisable()
-    {
-        Steer = 0f;
-        IsBraking = false;
-
-        if (gameInput == null)
+        public void Disable()
         {
-            return;
+            Steer = 0f;
+            IsBraking = false;
+
+            gameInput?.Player.Disable();
         }
 
-        gameInput.Player.RemoveCallbacks(this);
-        gameInput.Player.Disable();
-        gameInput.Dispose();
-        gameInput = null;
-    }
+        private void OnDisable()
+        {
+            Steer = 0f;
+            IsBraking = false;
 
-    public void OnMove(InputAction.CallbackContext context)
-    {
-        Steer = context.ReadValue<float>();
-    }
+            if (gameInput == null)
+            {
+                return;
+            }
 
-    public void OnBrake(InputAction.CallbackContext context)
-    {
-        IsBraking = context.ReadValueAsButton();
+            gameInput.Player.RemoveCallbacks(this);
+            gameInput.Player.Disable();
+            gameInput.Dispose();
+            gameInput = null;
+        }
+
+        public void OnMove(InputAction.CallbackContext context)
+        {
+            Steer = context.ReadValue<float>();
+        }
+
+        public void OnBrake(InputAction.CallbackContext context)
+        {
+            IsBraking = context.ReadValueAsButton();
+        }
     }
 }

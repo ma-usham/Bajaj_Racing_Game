@@ -1,128 +1,130 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
+using System;
 using UnityEngine;
 
-
-[Serializable]
-public struct PrizeClaim
+namespace Darkmatter.Core
 {
-    public string riderName;
-    public string phoneNumber;
-
-
-    public string claimedAtUtc;
-}
-
-
-public static class PrizeClaimStore
-{
-    private const string FileName = "prize-claims.json";
-
-
     [Serializable]
-    private class Ledger
+    public struct PrizeClaim
     {
-        public List<PrizeClaim> claims = new List<PrizeClaim>();
-    }
-
-    private static Ledger ledger;
+        public string riderName;
+        public string phoneNumber;
 
 
-    public static string FilePath => Path.Combine(Application.persistentDataPath, FileName);
-
-
-    public static IReadOnlyList<PrizeClaim> Claims
-    {
-        get
-        {
-            Load();
-            return ledger.claims;
-        }
+        public string claimedAtUtc;
     }
 
 
-    public static bool Add(string riderName, string phoneNumber, out PrizeClaim stored)
+    public static class PrizeClaimStore
     {
-        stored = default;
+        private const string FileName = "prize-claims.json";
 
-        riderName = (riderName ?? string.Empty).Trim();
-        phoneNumber = (phoneNumber ?? string.Empty).Trim();
 
-        if (riderName.Length == 0 || phoneNumber.Length == 0)
+        [Serializable]
+        private class Ledger
         {
-            return false;
+            public List<PrizeClaim> claims = new List<PrizeClaim>();
         }
 
-        Load();
+        private static Ledger ledger;
 
-        stored = new PrizeClaim
+
+        public static string FilePath => Path.Combine(Application.persistentDataPath, FileName);
+
+
+        public static IReadOnlyList<PrizeClaim> Claims
         {
-            riderName = riderName,
-            phoneNumber = phoneNumber,
-            claimedAtUtc = DateTime.UtcNow.ToString("o"),
-        };
-
-        ledger.claims.Add(stored);
-        Save();
-        return true;
-    }
-
-
-    private static void Load()
-    {
-        if (ledger != null)
-        {
-            return;
-        }
-
-        ledger = new Ledger();
-
-        string path = FilePath;
-        if (!File.Exists(path))
-        {
-            return;
-        }
-
-        try
-        {
-            Ledger read = JsonUtility.FromJson<Ledger>(File.ReadAllText(path));
-            if (read != null && read.claims != null)
+            get
             {
-                ledger = read;
-                return;
+                Load();
+                return ledger.claims;
             }
         }
-        catch (Exception error)
+
+
+        public static bool Add(string riderName, string phoneNumber, out PrizeClaim stored)
         {
-            Debug.LogError($"Prize claims at {path} could not be read: {error.Message}");
+            stored = default;
+
+            riderName = (riderName ?? string.Empty).Trim();
+            phoneNumber = (phoneNumber ?? string.Empty).Trim();
+
+            if (riderName.Length == 0 || phoneNumber.Length == 0)
+            {
+                return false;
+            }
+
+            Load();
+
+            stored = new PrizeClaim
+            {
+                riderName = riderName,
+                phoneNumber = phoneNumber,
+                claimedAtUtc = DateTime.UtcNow.ToString("o"),
+            };
+
+            ledger.claims.Add(stored);
+            Save();
+            return true;
         }
 
 
-        try
+        private static void Load()
         {
-            string aside = path + ".unreadable";
-            File.Delete(aside);
-            File.Move(path, aside);
-            Debug.LogWarning($"Prize claims moved aside to {aside}, starting a fresh list.");
-        }
-        catch (Exception error)
-        {
-            Debug.LogError($"Prize claims at {path} could not be moved aside: {error.Message}");
-        }
-    }
+            if (ledger != null)
+            {
+                return;
+            }
 
-    private static void Save()
-    {
-        string path = FilePath;
+            ledger = new Ledger();
 
-        try
-        {
-            File.WriteAllText(path, JsonUtility.ToJson(ledger, true));
+            string path = FilePath;
+            if (!File.Exists(path))
+            {
+                return;
+            }
+
+            try
+            {
+                Ledger read = JsonUtility.FromJson<Ledger>(File.ReadAllText(path));
+                if (read != null && read.claims != null)
+                {
+                    ledger = read;
+                    return;
+                }
+            }
+            catch (Exception error)
+            {
+                Debug.LogError($"Prize claims at {path} could not be read: {error.Message}");
+            }
+
+
+            try
+            {
+                string aside = path + ".unreadable";
+                File.Delete(aside);
+                File.Move(path, aside);
+                Debug.LogWarning($"Prize claims moved aside to {aside}, starting a fresh list.");
+            }
+            catch (Exception error)
+            {
+                Debug.LogError($"Prize claims at {path} could not be moved aside: {error.Message}");
+            }
         }
-        catch (Exception error)
+
+        private static void Save()
         {
-            Debug.LogError($"Prize claims could not be written to {path}: {error.Message}");
+            string path = FilePath;
+
+            try
+            {
+                File.WriteAllText(path, JsonUtility.ToJson(ledger, true));
+            }
+            catch (Exception error)
+            {
+                Debug.LogError($"Prize claims could not be written to {path}: {error.Message}");
+            }
         }
     }
 }
