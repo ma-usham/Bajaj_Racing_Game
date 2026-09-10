@@ -81,6 +81,11 @@ namespace Darkmatter.Core
         [SerializeField]
         private ParticleSystem confetti;
 
+        [Tooltip("Optional. Played on the same frame the confetti goes off. Needs an AudioManager " +
+                 "in the scene; without one the celebration is silent.")]
+        [SerializeField]
+        private AudioClip celebrationSound;
+
         [Tooltip("Seconds the confetti gets before the results appear over it. 0 puts them up " +
                  "straight away.")]
         [Min(0f)]
@@ -402,6 +407,11 @@ namespace Darkmatter.Core
                 confetti.gameObject.SetActive(true);
                 confetti.Clear(true);
                 confetti.Play(true);
+            }
+
+            if (celebrationSound != null && AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlaySfx(celebrationSound);
             }
 
             if (resultsDelay > 0f)

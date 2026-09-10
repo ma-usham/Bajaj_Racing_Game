@@ -10,34 +10,37 @@ namespace Darkmatter.Gameplay.Editors
 
         private const float PickDistance = 20f;
 
-        private static readonly Color BoostColour = new Color(0.35f, 1.00f, 0.55f);
-        private static readonly Color SlowColour = new Color(1.00f, 0.45f, 0.30f);
+        /// <summary>How far apart the two spots of a freshly dropped zone start, in world units.</summary>
+        private const float PairSpread = 5f;
 
-        private SerializedProperty points;
+        private static readonly Color ZoneColour = new Color(1.00f, 0.70f, 0.15f);
+        private static readonly Color PairColour = new Color(1.00f, 0.70f, 0.15f, 0.45f);
+
+        private SerializedProperty zones;
 
         private void OnEnable()
         {
-            points = serializedObject.FindProperty("points");
+            zones = serializedObject.FindProperty("zones");
         }
 
         public override void OnInspectorGUI()
         {
             EditorGUILayout.HelpBox(
-                "A point is exactly where a pad goes: a position in world XZ and which kind " +
-                "spawns there. Nothing is scattered or snapped, so what you place is what you " +
-                "race.\n\n" +
-                "Shift click the road in the scene view to drop a point, drag it to move it, " +
-                "ctrl click it to delete it. A new point copies the kind of the last one, so a " +
-                "run of boosts is quick to lay down.\n\n" +
-                "Green is a boost, orange a slowdown.",
+                "A zone is two spots. One comes up as a boost and the other as a slowdown, so a " +
+                "zone is never two of the same kind, and which spot gets which is rolled fresh " +
+                "every race.\n\n" +
+                "Shift click the road in the scene view to drop a zone, drag either dot to move " +
+                "it, ctrl click near a zone to delete it.\n\n" +
+                "The dots are not coloured by kind because nothing has been dealt yet at edit " +
+                "time.",
                 MessageType.None);
 
             DrawDefaultInspector();
 
-            if (points.arraySize == 0)
+            if (zones.arraySize == 0)
             {
                 EditorGUILayout.HelpBox(
-                    "No points yet, so this spawner will not lay any pads.",
+                    "No zones yet, so this spawner will not lay any pads.",
                     MessageType.Warning);
             }
         }
@@ -51,9 +54,9 @@ namespace Darkmatter.Gameplay.Editors
             UnityEngine.Rendering.CompareFunction wasTesting = Handles.zTest;
             Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
 
-            for (int i = 0; i < points.arraySize; i++)
+            for (int i = 0; i < zones.arraySize; i++)
             {
-                DrawPoint(points.GetArrayElementAtIndex(i), i);
+                DrawZone(zones.GetArrayElementAtIndex(i), i);
             }
 
             Handles.zTest = wasTesting;
@@ -62,25 +65,34 @@ namespace Darkmatter.Gameplay.Editors
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawPoint(SerializedProperty point, int index)
+        private void DrawZone(SerializedProperty zone, int index)
         {
-            SerializedProperty position = point.FindPropertyRelative("position");
-            SerializedProperty kind = point.FindPropertyRelative("kind");
+            SerializedProperty first = zone.FindPropertyRelative("first");
+            SerializedProperty second = zone.FindPropertyRelative("second");
 
-            Vector2 flat = position.vector2Value;
-            Vector3 centre = new Vector3(flat.x, DrawHeight, flat.y);
-
-            Handles.color = kind.enumValueIndex == 0 ? BoostColour : SlowColour;
+            Vector3 a = World(first.vector2Value);
+            Vector3 b = World(second.vector2Value);
 
             if (Event.current.type == EventType.Repaint)
             {
-                Handles.DrawWireDisc(centre, Vector3.up, HandleUtility.GetHandleSize(centre) * 0.25f);
-                Handles.Label(centre + Vector3.up * 0.5f, $"{index}  {(SpeedPadKind)kind.enumValueIndex}");
+                // The line is what makes the pair read as one zone rather than two loose spots.
+                Handles.color = PairColour;
+                Handles.DrawDottedLine(a, b, 4f);
+
+                Handles.color = ZoneColour;
+                Handles.Label((a + b) * 0.5f + Vector3.up * 0.5f, $"Zone {index}");
             }
 
+            Handles.color = ZoneColour;
+            Drag(first, a);
+            Drag(second, b);
+        }
+
+        private void Drag(SerializedProperty position, Vector3 at)
+        {
             EditorGUI.BeginChangeCheck();
-            Vector3 moved = Handles.Slider2D(centre, Vector3.up, Vector3.right, Vector3.forward,
-                                             HandleUtility.GetHandleSize(centre) * 0.08f,
+            Vector3 moved = Handles.Slider2D(at, Vector3.up, Vector3.right, Vector3.forward,
+                                             HandleUtility.GetHandleSize(at) * 0.08f,
                                              Handles.DotHandleCap, 0f);
             if (EditorGUI.EndChangeCheck())
             {
@@ -132,16 +144,14 @@ namespace Darkmatter.Gameplay.Editors
 
             Vector3 hit = ray.GetPoint(distance);
 
-            // A new point picks up the kind of the last one, so laying a run of the same kind is
-            // one modifier and a click rather than a trip back to the inspector each time.
-            int kind = points.arraySize > 0
-                ? points.GetArrayElementAtIndex(points.arraySize - 1).FindPropertyRelative("kind").enumValueIndex
-                : 0;
-
-            points.arraySize++;
-            SerializedProperty added = points.GetArrayElementAtIndex(points.arraySize - 1);
-            added.FindPropertyRelative("position").vector2Value = new Vector2(hit.x, hit.z);
-            added.FindPropertyRelative("kind").enumValueIndex = kind;
+            // A zone is always born complete, with both spots set. There is no half a zone to
+            // represent, so there is no way to leave one in the scene by clicking away.
+            zones.arraySize++;
+            SerializedProperty added = zones.GetArrayElementAtIndex(zones.arraySize - 1);
+            added.FindPropertyRelative("first").vector2Value =
+                new Vector2(hit.x - PairSpread * 0.5f, hit.z);
+            added.FindPropertyRelative("second").vector2Value =
+                new Vector2(hit.x + PairSpread * 0.5f, hit.z);
         }
 
         private void DeleteNearest(Vector2 mouse)
@@ -149,23 +159,28 @@ namespace Darkmatter.Gameplay.Editors
             int nearest = -1;
             float nearestDistance = PickDistance;
 
-            for (int i = 0; i < points.arraySize; i++)
+            for (int i = 0; i < zones.arraySize; i++)
             {
-                Vector2 flat = points.GetArrayElementAtIndex(i).FindPropertyRelative("position").vector2Value;
-                Vector3 world = new Vector3(flat.x, DrawHeight, flat.y);
+                SerializedProperty zone = zones.GetArrayElementAtIndex(i);
 
-                float distance = Vector2.Distance(HandleUtility.WorldToGUIPoint(world), mouse);
-                if (distance < nearestDistance)
+                foreach (string slot in new[] { "first", "second" })
                 {
-                    nearestDistance = distance;
-                    nearest = i;
+                    Vector3 world = World(zone.FindPropertyRelative(slot).vector2Value);
+                    float distance = Vector2.Distance(HandleUtility.WorldToGUIPoint(world), mouse);
+                    if (distance < nearestDistance)
+                    {
+                        nearestDistance = distance;
+                        nearest = i;
+                    }
                 }
             }
 
             if (nearest >= 0)
             {
-                points.DeleteArrayElementAtIndex(nearest);
+                zones.DeleteArrayElementAtIndex(nearest);
             }
         }
+
+        private static Vector3 World(Vector2 flat) => new Vector3(flat.x, DrawHeight, flat.y);
     }
 }

@@ -11,21 +11,21 @@ namespace Darkmatter.Gameplay
     }
 
     [System.Serializable]
-    public class SpeedPadPoint
+    public class SpeedPadZone
     {
-        [Tooltip("Where the pad goes, in world XZ. The prefab spawns exactly here, at the height " +
-                 "the spawner floats pads at.")]
-        public Vector2 position;
+        [Tooltip("The two spots in this zone, in world XZ. One gets the boost and the other the " +
+                 "slowdown, so a zone is always one of each and never two the same. Which spot " +
+                 "gets which is rolled fresh every race.")]
+        public Vector2 first;
 
-        [Tooltip("Which of the two prefabs spawns at this point.")]
-        public SpeedPadKind kind = SpeedPadKind.Boost;
+        public Vector2 second;
     }
 
     [System.Serializable]
     public class SpeedPadSettings
     {
-        [Tooltip("Spawned at every point of this kind. How the pad looks is entirely the prefab's " +
-                 "business: its size, its colour, its sorting and the way it is turned.")]
+        [Tooltip("Spawned at every spot dealt this kind. How the pad looks is entirely the " +
+                 "prefab's business: its size, its colour, its sorting and the way it is turned.")]
         public GameObject prefab;
 
         [Tooltip("What this pad does to top speed while it lasts. Above 1 is a boost, below 1 a " +
@@ -43,12 +43,12 @@ namespace Darkmatter.Gameplay
     }
 
     /// <summary>
-    /// Puts a prefab at each authored point and hands the bike a change of pace when it drives
-    /// over one.
+    /// Puts a pair of pads in each authored zone and hands the bike a change of pace when it
+    /// drives over one.
     ///
-    /// The points are taken at their word: nothing is scattered, snapped to the road or rolled
-    /// for. Where a pad is and which kind it is are both decided in the inspector, so what is in
-    /// the scene view is what turns up in the race.
+    /// The spots are taken at their word: nothing is scattered or snapped to the road. What is
+    /// rolled is only which of a zone's two spots is the boost, and both prefabs are built at
+    /// both spots up front so re-dealing a race costs nothing but two SetActive calls.
     /// </summary>
     [DisallowMultipleComponent]
     public class SpeedPadSpawner : MonoBehaviour
@@ -59,15 +59,16 @@ namespace Darkmatter.Gameplay
         [SerializeField]
         private PlayerController player;
 
-        [Header("Pads")]
-        [Tooltip("Where the pads go. Select this object and shift click the road in the scene " +
-                 "view to drop one, drag it to move it, ctrl click it to remove it.")]
+        [Header("Zones")]
+        [Tooltip("Each zone is two spots that come up as one boost and one slowdown. Select this " +
+                 "object and shift click the road to drop a zone, drag either dot to move it, " +
+                 "ctrl click to remove the zone.")]
         [SerializeField]
-        private SpeedPadPoint[] points = new SpeedPadPoint[0];
+        private SpeedPadZone[] zones = new SpeedPadZone[0];
 
         [Header("Float")]
-        [Tooltip("How high above the road a pad rests, in world units. The points carry no " +
-                 "height of their own, so this is the height for all of them.")]
+        [Tooltip("How high above the road a pad rests, in world units. The spots carry no height " +
+                 "of their own, so this is the height for all of them.")]
         [SerializeField]
         private float padHeight = 2.5f;
 
@@ -88,7 +89,7 @@ namespace Darkmatter.Gameplay
 
         [Header("Pickup")]
         [Tooltip("How near the bike has to pass for a pad to count as driven over, in world " +
-                 "units. Measured against the point, not the bobbing prefab, so how high a pad " +
+                 "units. Measured against the spot, not the bobbing prefab, so how high a pad " +
                  "happens to be never changes how easy it is to collect.")]
         [SerializeField]
         private float collectRadius = 2.5f;
@@ -158,8 +159,8 @@ namespace Darkmatter.Gameplay
         }
 
         /// <summary>
-        /// Puts every collected pad back out. Called when the bike goes back to the grid, so a
-        /// second run round has the same pads on it as the first.
+        /// Puts every collected pad back out and deals the zones again, so a retry runs the same
+        /// circuit with a fresh mix rather than a stripped one.
         /// </summary>
         public void ResetPads()
         {
@@ -174,6 +175,8 @@ namespace Darkmatter.Gameplay
                 pad.root.gameObject.SetActive(true);
             }
 
+            Deal();
+
             if (player != null)
             {
                 lastBike = Flat(player.transform.position);
@@ -183,42 +186,86 @@ namespace Darkmatter.Gameplay
         private void Build()
         {
             container = new GameObject($"{name} Pads").transform;
-            pads = new Pad[points.Length];
+            pads = new Pad[zones.Length * 2];
 
-            for (int i = 0; i < points.Length; i++)
+            for (int i = 0; i < zones.Length; i++)
             {
-                SpeedPadPoint point = points[i];
-                GameObject prefab = Settings(point.kind).prefab;
+                pads[i * 2] = BuildPad(zones[i].first, i, 0);
+                pads[i * 2 + 1] = BuildPad(zones[i].second, i, 1);
+            }
 
-                if (prefab == null)
-                {
-                    Debug.LogError($"{name}: point {i} is a {point.kind} but that kind has no " +
-                                   "prefab, so nothing will spawn there.", this);
-                }
+            Deal();
+        }
 
-                Transform root = prefab != null
-                    ? Instantiate(prefab).transform
-                    : new GameObject($"SpeedPad {i}").transform;
+        private Pad BuildPad(Vector2 position, int zone, int slot)
+        {
+            Transform root = new GameObject($"SpeedPad {zone}.{slot}").transform;
+            root.SetParent(container, false);
+            root.position = new Vector3(position.x, padHeight, position.y);
 
-                root.name = $"SpeedPad {i} {point.kind}";
-                root.SetParent(container, false);
-                root.position = new Vector3(point.position.x, padHeight, point.position.y);
+            return new Pad
+            {
+                root = root,
+                position = position,
+                phase = Random.value,
+                boostVisual = BuildVisual(boost, root, "Boost"),
+                slowVisual = BuildVisual(slowdown, root, "Slowdown"),
+                live = true,
+            };
+        }
 
-                pads[i] = new Pad
-                {
-                    root = root,
-                    kind = point.kind,
-                    position = point.position,
-                    facing = root.rotation,
-                    phase = Random.value,
-                    live = true,
-                };
+        /// <summary>
+        /// Both kinds are built at every spot and only one is ever shown. Two spare objects per
+        /// zone buys a re-deal that costs nothing, which a lap the rider retries wants.
+        /// </summary>
+        private GameObject BuildVisual(SpeedPadSettings settings, Transform parent, string label)
+        {
+            if (settings.prefab == null)
+            {
+                Debug.LogError($"{name}: the {label} pad has no prefab, so half of every zone " +
+                               "will be invisible.", this);
+                return null;
+            }
+
+            GameObject built = Instantiate(settings.prefab, parent, false);
+            built.name = label;
+            built.transform.localPosition = Vector3.zero;
+            return built;
+        }
+
+        /// <summary>
+        /// Hands each zone one boost and one slowdown. Dealing the pair together rather than
+        /// rolling each spot on its own is what makes two of the same kind in one zone
+        /// impossible, rather than merely unlikely.
+        /// </summary>
+        private void Deal()
+        {
+            for (int i = 0; i < zones.Length; i++)
+            {
+                bool firstIsBoost = Random.value < 0.5f;
+                Wear(pads[i * 2], firstIsBoost ? SpeedPadKind.Boost : SpeedPadKind.Slowdown);
+                Wear(pads[i * 2 + 1], firstIsBoost ? SpeedPadKind.Slowdown : SpeedPadKind.Boost);
+            }
+        }
+
+        private void Wear(Pad pad, SpeedPadKind kind)
+        {
+            pad.kind = kind;
+
+            if (pad.boostVisual != null)
+            {
+                pad.boostVisual.SetActive(kind == SpeedPadKind.Boost);
+            }
+
+            if (pad.slowVisual != null)
+            {
+                pad.slowVisual.SetActive(kind == SpeedPadKind.Slowdown);
             }
         }
 
         /// <summary>
         /// Rides the pad up and down, and turns it if asked. Only the pad moves: where it counts
-        /// as being is the point it was authored at.
+        /// as being is the spot it was authored at.
         /// </summary>
         private void Hover(Pad pad, float now)
         {
@@ -230,13 +277,13 @@ namespace Darkmatter.Gameplay
 
             if (spinSpeed != 0f)
             {
-                pad.root.rotation = Quaternion.AngleAxis(now * spinSpeed, Vector3.up) * pad.facing;
+                pad.root.rotation = Quaternion.AngleAxis(now * spinSpeed, Vector3.up);
             }
         }
 
         private void Collect(Pad pad)
         {
-            SpeedPadSettings settings = Settings(pad.kind);
+            SpeedPadSettings settings = pad.kind == SpeedPadKind.Boost ? boost : slowdown;
             player.ApplySpeedModifier(settings.speedMultiplier, settings.duration);
 
             if (settings.sound != null && AudioManager.Instance != null)
@@ -246,11 +293,6 @@ namespace Darkmatter.Gameplay
 
             pad.live = false;
             pad.root.gameObject.SetActive(false);
-        }
-
-        private SpeedPadSettings Settings(SpeedPadKind kind)
-        {
-            return kind == SpeedPadKind.Boost ? boost : slowdown;
         }
 
         /// <summary>
@@ -270,14 +312,13 @@ namespace Darkmatter.Gameplay
         private class Pad
         {
             public Transform root;
+            public GameObject boostVisual;
+            public GameObject slowVisual;
             public SpeedPadKind kind;
             public Vector2 position;
 
             /// <summary>Where in the rise and fall this pad starts, so a row of them does not pulse as one.</summary>
             public float phase;
-
-            /// <summary>The prefab's own rotation, which the spin turns away from rather than replacing.</summary>
-            public Quaternion facing;
 
             public bool live;
         }
