@@ -7,50 +7,27 @@ namespace Darkmatter.Gameplay
     {
         Boost,
 
-
         Slowdown,
     }
 
-
     [System.Serializable]
-    public class SpeedPadZone
+    public class SpeedPadPoint
     {
-        [Tooltip("Centre of the zone in world XZ: the X and Z of a position in the scene. A pad " +
-                 "lies on the road, so there is no height to give.")]
+        [Tooltip("Where the pad goes, in world XZ. The prefab spawns exactly here, at the height " +
+                 "the spawner floats pads at.")]
         public Vector2 position;
 
-        [Tooltip("How far from the centre a pad may land, in world units. The road is only 7 " +
-                 "units either side of its centreline, so a radius much past 10 starts covering " +
-                 "more than one stretch of it and pads can turn up somewhere unintended.")]
-        [Min(0.5f)]
-        public float radius = 8f;
-
-        [Tooltip("How many pads this zone keeps on the road at once. Each one is rolled for boost " +
-                 "or slowdown on its own, so a zone of three can come up as any mix of the two.")]
-        [Min(1)]
-        public int count = 1;
+        [Tooltip("Which of the two prefabs spawns at this point.")]
+        public SpeedPadKind kind = SpeedPadKind.Boost;
     }
-
 
     [System.Serializable]
     public class SpeedPadSettings
     {
-        [Header("Look")] [Tooltip("Painted flat on the road for this kind of pad. Ignored when a prefab is given.")]
-        public Sprite sprite;
-
-        [Tooltip("Tint laid over the sprite. Worth using when both kinds share one arrow sprite " +
-                 "and only the colour tells them apart.")]
-        public Color tint = Color.white;
-
-        [Tooltip("How big the pad is drawn, in world units, whatever the sprite's own pixels per " +
-                 "unit. The road is 14 units across, so 5 by 5 is a pad the bike can miss.")]
-        public Vector2 size = new Vector2(5f, 5f);
-
-        [Tooltip("Optional. Used instead of the sprite, for a pad that wants particles or an " +
-                 "animation. It is placed, turned on and turned off by the spawner like any other pad.")]
+        [Tooltip("Spawned at every point of this kind. How the pad looks is entirely the prefab's " +
+                 "business: its size, its colour, its sorting and the way it is turned.")]
         public GameObject prefab;
 
-        [Header("Effect")]
         [Tooltip("What this pad does to top speed while it lasts. Above 1 is a boost, below 1 a " +
                  "slowdown. 1 is a pad that does nothing.")]
         [Min(0.05f)]
@@ -65,7 +42,14 @@ namespace Darkmatter.Gameplay
         public AudioClip sound;
     }
 
-
+    /// <summary>
+    /// Puts a prefab at each authored point and hands the bike a change of pace when it drives
+    /// over one.
+    ///
+    /// The points are taken at their word: nothing is scattered, snapped to the road or rolled
+    /// for. Where a pad is and which kind it is are both decided in the inspector, so what is in
+    /// the scene view is what turns up in the race.
+    /// </summary>
     [DisallowMultipleComponent]
     public class SpeedPadSpawner : MonoBehaviour
     {
@@ -75,172 +59,70 @@ namespace Darkmatter.Gameplay
         [SerializeField]
         private PlayerController player;
 
-        [Tooltip("Baked centreline of the circuit, the same asset the bike holds. Left empty, the " +
-                 "bike's own is used, which is one less thing to keep in step.")]
+        [Header("Pads")]
+        [Tooltip("Where the pads go. Select this object and shift click the road in the scene " +
+                 "view to drop one, drag it to move it, ctrl click it to remove it.")]
         [SerializeField]
-        private TrackPathSO track;
+        private SpeedPadPoint[] points = new SpeedPadPoint[0];
 
-        [Header("Zones")]
-        [Tooltip("Where pads are allowed to land. Fill in a position and a radius per zone, or " +
-                 "select this object and shift click the road in the scene view to drop one.")]
+        [Header("Float")]
+        [Tooltip("How high above the road a pad rests, in world units. The points carry no " +
+                 "height of their own, so this is the height for all of them.")]
         [SerializeField]
-        private SpeedPadZone[] zones = new SpeedPadZone[0];
+        private float padHeight = 2.5f;
 
-        [Header("Placement")]
-        [Tooltip("How far inside the edge of the road a pad is kept, in world units. Roughly half " +
-                 "the pad's own width, or a pad hangs over the kerb where the road bends.")]
+        [Tooltip("How far the pad rises and falls either side of that height. 0 holds it still.")]
+        [Min(0f)]
         [SerializeField]
-        private float roadMargin = 2f;
+        private float bobHeight = 0.35f;
 
-        [Tooltip("How far apart two pads from the same zone are kept, in world units. Only bites " +
-                 "on a zone holding more than one pad, and gives way rather than leaving a hole " +
-                 "if the zone is too small to honour it.")]
+        [Tooltip("Full rise-and-fall cycles per second.")]
+        [Min(0f)]
         [SerializeField]
-        private float minSeparation = 6f;
+        private float bobSpeed = 0.6f;
 
-        [Tooltip("How far above the road a pad sits, in world units. Just enough to clear the " +
-                 "Track sprite. An upright pad wants raising to about half its own height.")]
+        [Tooltip("Degrees per second the pad turns on the spot. 0 leaves it facing the way the " +
+                 "prefab was built.")]
         [SerializeField]
-        private float padHeight = 0.05f;
-
-        [Tooltip("On paints the pad flat on the road pointing down the racing direction, which is " +
-                 "what an arrow or an oil slick wants. Off stands it upright facing the oncoming " +
-                 "bike, which is what a floating pickup wants.")]
-        [SerializeField]
-        private bool layFlat = true;
-
-        [Tooltip("Sorting layer the pad is drawn on. Ground puts it in with the road; the bike is " +
-                 "on Player and so still draws over the top of it.")]
-        [SerializeField]
-        private string sortingLayer = "Ground";
-
-        [Tooltip("Order within that layer. The Track sprite is on 1, so anything above that paints " +
-                 "on top of the road rather than under it.")]
-        [SerializeField]
-        private int sortingOrder = 2;
-
-        [Header("Mix")]
-        [Tooltip("Share of pads that come up as a boost. 1 is all boosts, 0 all slowdowns, and " +
-                 "every pad is rolled on its own, so a handful of pads can still come up all one way.")]
-        [Range(0f, 1f)]
-        [SerializeField]
-        private float boostShare = 0.5f;
-
-        [Tooltip("Seed for the scatter. 0 leaves it to the clock and every run is laid out " +
-                 "differently; anything else gives the same layout every run, which is what " +
-                 "tuning a lap or chasing a bug wants.")]
-        [SerializeField]
-        private int seed;
+        private float spinSpeed = 0f;
 
         [Header("Pickup")]
-        [Tooltip("How near the bike has to pass for a pad to count as driven over, in world units. " +
-                 "Wants to be about half the pad's width, or pads read as collected off to one side.")]
+        [Tooltip("How near the bike has to pass for a pad to count as driven over, in world " +
+                 "units. Measured against the point, not the bobbing prefab, so how high a pad " +
+                 "happens to be never changes how easy it is to collect.")]
         [SerializeField]
         private float collectRadius = 2.5f;
 
-        [Tooltip("On puts a collected pad back out, in a new spot in its own zone and with a newly " +
-                 "rolled kind. Off is one pad per zone per race.")]
+        [Header("Boost")]
         [SerializeField]
-        private bool respawn = true;
-
-        [Tooltip("Seconds before a collected pad comes back. Wants to be long enough that the bike " +
-                 "is somewhere else on the circuit by then.")]
-        [Min(0f)]
-        [SerializeField]
-        private float respawnDelay = 8f;
-
-        [Header("Boost")] [SerializeField] private SpeedPadSettings boost = new SpeedPadSettings
+        private SpeedPadSettings boost = new SpeedPadSettings
         {
-            tint = new Color(0.35f, 1f, 0.55f),
             speedMultiplier = 1.5f,
             duration = 2.5f,
         };
 
-        [Header("Slowdown")] [SerializeField] private SpeedPadSettings slowdown = new SpeedPadSettings
+        [Header("Slowdown")]
+        [SerializeField]
+        private SpeedPadSettings slowdown = new SpeedPadSettings
         {
-            tint = new Color(1f, 0.45f, 0.3f),
             speedMultiplier = 0.55f,
             duration = 2f,
         };
 
-
-        private const int PlacementAttempts = 8;
-
-
-        private const float RespawnClearance = 2.5f;
-
-
-        private const float RetryDelay = 0.5f;
-
         private Pad[] pads;
         private Transform container;
-        private System.Random random;
         private Vector2 lastBike;
-        private bool hasSortingLayer;
-
-
-        public TrackPathSO Road => track != null ? track : (player != null ? player.Track : null);
-
-
-        public bool TryPlace(Vector2 wanted, out Vector2 placed, out Vector2 tangent)
-        {
-            placed = wanted;
-            tangent = Vector2.right;
-
-            TrackPathSO road = Road;
-            if (road == null || !road.IsValid)
-            {
-                return false;
-            }
-
-            road.Sample(wanted, -1, out Vector2 centre, out tangent);
-
-            Vector2 offset = wanted - centre;
-            float strayed = offset.magnitude;
-            float limit = Mathf.Max(road.HalfWidth - roadMargin, 0f);
-            if (strayed > limit && strayed > 1e-4f)
-            {
-                placed = centre + offset * (limit / strayed);
-            }
-
-            return true;
-        }
 
         private void Start()
         {
             if (player == null)
             {
-                Debug.LogError($"{name}: no PlayerController assigned, so no pad can be picked up.", this);
+                Debug.LogError($"{name}: no PlayerController, so no pad can ever be collected.", this);
                 enabled = false;
                 return;
             }
 
-            TrackPathSO road = Road;
-            if (road == null || !road.IsValid)
-            {
-                Debug.LogError($"{name}: no baked TrackPathSO to lay pads on, here or on the bike.", this);
-                enabled = false;
-                return;
-            }
-
-            if (zones == null || zones.Length == 0)
-            {
-                Debug.LogWarning($"{name}: no zones, so no pads. Give it a position and a radius " +
-                                 "for each patch of road you want pads on.", this);
-                enabled = false;
-                return;
-            }
-
-            hasSortingLayer = HasSortingLayer(sortingLayer);
-            if (!hasSortingLayer)
-            {
-                Debug.LogWarning($"{name}: there is no sorting layer called \"{sortingLayer}\", so " +
-                                 "pads are left on the default one and may end up under the road.", this);
-            }
-
-            random = seed == 0 ? new System.Random() : new System.Random(seed);
             lastBike = Flat(player.transform.position);
-
             Build();
         }
 
@@ -261,131 +143,100 @@ namespace Darkmatter.Gameplay
             {
                 if (!pad.live)
                 {
-                    if ((respawn || pad.waitingForSpot) && now >= pad.readyAt)
-                    {
-                        Place(pad, bike, now);
-                    }
-
                     continue;
                 }
 
+                Hover(pad, now);
 
                 if (DistanceToSegment(pad.position, lastBike, bike) <= collectRadius)
                 {
-                    Collect(pad, now);
+                    Collect(pad);
                 }
             }
 
             lastBike = bike;
         }
 
+        /// <summary>
+        /// Puts every collected pad back out. Called when the bike goes back to the grid, so a
+        /// second run round has the same pads on it as the first.
+        /// </summary>
+        public void ResetPads()
+        {
+            if (pads == null)
+            {
+                return;
+            }
+
+            foreach (Pad pad in pads)
+            {
+                pad.live = true;
+                pad.root.gameObject.SetActive(true);
+            }
+
+            if (player != null)
+            {
+                lastBike = Flat(player.transform.position);
+            }
+        }
 
         private void Build()
         {
             container = new GameObject($"{name} Pads").transform;
+            pads = new Pad[points.Length];
 
-            int total = 0;
-            foreach (SpeedPadZone zone in zones)
+            for (int i = 0; i < points.Length; i++)
             {
-                total += Mathf.Max(zone.count, 1);
-            }
+                SpeedPadPoint point = points[i];
+                GameObject prefab = Settings(point.kind).prefab;
 
-            pads = new Pad[total];
-            Vector2 bike = lastBike;
-            float now = Time.time;
-
-            int index = 0;
-            foreach (SpeedPadZone zone in zones)
-            {
-                for (int i = 0; i < Mathf.Max(zone.count, 1); i++)
+                if (prefab == null)
                 {
-                    Pad pad = new Pad
-                    {
-                        zone = zone,
-                        root = new GameObject($"SpeedPad {index}").transform,
-                    };
-
-                    pad.root.SetParent(container, false);
-
-
-                    pad.boostVisual = BuildVisual(boost, pad.root, "Boost");
-                    pad.slowVisual = BuildVisual(slowdown, pad.root, "Slowdown");
-
-
-                    pad.root.gameObject.SetActive(false);
-
-                    pads[index] = pad;
-                    Place(pad, bike, now);
-                    index++;
+                    Debug.LogError($"{name}: point {i} is a {point.kind} but that kind has no " +
+                                   "prefab, so nothing will spawn there.", this);
                 }
+
+                Transform root = prefab != null
+                    ? Instantiate(prefab).transform
+                    : new GameObject($"SpeedPad {i}").transform;
+
+                root.name = $"SpeedPad {i} {point.kind}";
+                root.SetParent(container, false);
+                root.position = new Vector3(point.position.x, padHeight, point.position.y);
+
+                pads[i] = new Pad
+                {
+                    root = root,
+                    kind = point.kind,
+                    position = point.position,
+                    facing = root.rotation,
+                    phase = Random.value,
+                    live = true,
+                };
             }
         }
 
-        private GameObject BuildVisual(SpeedPadSettings settings, Transform parent, string label)
+        /// <summary>
+        /// Rides the pad up and down, and turns it if asked. Only the pad moves: where it counts
+        /// as being is the point it was authored at.
+        /// </summary>
+        private void Hover(Pad pad, float now)
         {
-            if (settings.prefab != null)
+            if (bobHeight > 0f && bobSpeed > 0f)
             {
-                GameObject fromPrefab = Instantiate(settings.prefab, parent);
-                fromPrefab.name = label;
-                fromPrefab.transform.localPosition = Vector3.zero;
-                fromPrefab.transform.localRotation = Quaternion.identity;
-                return fromPrefab;
+                float swing = Mathf.Sin((now * bobSpeed + pad.phase) * 2f * Mathf.PI) * bobHeight;
+                pad.root.position = new Vector3(pad.position.x, padHeight + swing, pad.position.y);
             }
 
-            GameObject built = new GameObject(label);
-            built.transform.SetParent(parent, false);
-
-            SpriteRenderer renderer = built.AddComponent<SpriteRenderer>();
-            renderer.sprite = settings.sprite;
-            renderer.color = settings.tint;
-            renderer.sortingOrder = sortingOrder;
-            if (hasSortingLayer)
+            if (spinSpeed != 0f)
             {
-                renderer.sortingLayerName = sortingLayer;
+                pad.root.rotation = Quaternion.AngleAxis(now * spinSpeed, Vector3.up) * pad.facing;
             }
-
-
-            if (settings.sprite != null)
-            {
-                Vector2 drawn = settings.sprite.bounds.size;
-                built.transform.localScale = new Vector3(
-                    drawn.x > 1e-4f ? settings.size.x / drawn.x : 1f,
-                    drawn.y > 1e-4f ? settings.size.y / drawn.y : 1f,
-                    1f);
-            }
-            else
-            {
-                Debug.LogWarning($"{name}: the {label} pad has neither a sprite nor a prefab, so it " +
-                                 "works but cannot be seen.", this);
-            }
-
-            return built;
         }
 
-
-        private void Place(Pad pad, Vector2 bike, float now)
+        private void Collect(Pad pad)
         {
-            if (!TryFindSpot(pad, bike, out Vector2 placed, out Vector2 tangent))
-            {
-                pad.waitingForSpot = true;
-                pad.readyAt = now + RetryDelay;
-                return;
-            }
-
-            pad.kind = random.NextDouble() < boostShare ? SpeedPadKind.Boost : SpeedPadKind.Slowdown;
-            pad.position = placed;
-            pad.live = true;
-            pad.waitingForSpot = false;
-
-            pad.root.SetPositionAndRotation(new Vector3(placed.x, padHeight, placed.y), Facing(tangent));
-            pad.boostVisual.SetActive(pad.kind == SpeedPadKind.Boost);
-            pad.slowVisual.SetActive(pad.kind == SpeedPadKind.Slowdown);
-            pad.root.gameObject.SetActive(true);
-        }
-
-        private void Collect(Pad pad, float now)
-        {
-            SpeedPadSettings settings = pad.kind == SpeedPadKind.Boost ? boost : slowdown;
+            SpeedPadSettings settings = Settings(pad.kind);
             player.ApplySpeedModifier(settings.speedMultiplier, settings.duration);
 
             if (settings.sound != null && AudioManager.Instance != null)
@@ -394,94 +245,18 @@ namespace Darkmatter.Gameplay
             }
 
             pad.live = false;
-            pad.readyAt = now + respawnDelay;
             pad.root.gameObject.SetActive(false);
         }
 
-
-        private bool TryFindSpot(Pad pad, Vector2 bike, out Vector2 placed, out Vector2 tangent)
+        private SpeedPadSettings Settings(SpeedPadKind kind)
         {
-            placed = Vector2.zero;
-            tangent = Vector2.right;
-
-            bool haveFallback = false;
-            Vector2 fallback = Vector2.zero;
-            Vector2 fallbackTangent = Vector2.right;
-            float clearance = collectRadius * RespawnClearance;
-
-            for (int attempt = 0; attempt < PlacementAttempts; attempt++)
-            {
-                Vector2 wanted = pad.zone.position + InsideCircle(pad.zone.radius);
-                if (!TryPlace(wanted, out Vector2 spot, out Vector2 along))
-                {
-                    return false;
-                }
-
-                if (Vector2.Distance(spot, bike) < clearance)
-                {
-                    continue;
-                }
-
-                if (!haveFallback)
-                {
-                    haveFallback = true;
-                    fallback = spot;
-                    fallbackTangent = along;
-                }
-
-                if (IsClearOfSiblings(pad, spot))
-                {
-                    placed = spot;
-                    tangent = along;
-                    return true;
-                }
-            }
-
-            placed = fallback;
-            tangent = fallbackTangent;
-            return haveFallback;
+            return kind == SpeedPadKind.Boost ? boost : slowdown;
         }
 
-        private bool IsClearOfSiblings(Pad pad, Vector2 spot)
-        {
-            foreach (Pad other in pads)
-            {
-                if (other == null || other == pad || !other.live || other.zone != pad.zone)
-                {
-                    continue;
-                }
-
-                if (Vector2.Distance(other.position, spot) < minSeparation)
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-
-        private Vector2 InsideCircle(float radius)
-        {
-            float angle = (float)random.NextDouble() * Mathf.PI * 2f;
-            float distance = radius * Mathf.Sqrt((float)random.NextDouble());
-            return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
-        }
-
-
-        private Quaternion Facing(Vector2 tangent)
-        {
-            Vector3 along = new Vector3(tangent.x, 0f, tangent.y);
-            if (along.sqrMagnitude < 1e-6f)
-            {
-                along = Vector3.forward;
-            }
-
-            return layFlat
-                ? Quaternion.LookRotation(Vector3.down, along)
-                : Quaternion.LookRotation(along, Vector3.up);
-        }
-
+        /// <summary>
+        /// Against the line the bike travelled this frame rather than where it ended up, or a
+        /// pad can be driven straight through between two frames at speed.
+        /// </summary>
         private static float DistanceToSegment(Vector2 point, Vector2 from, Vector2 to)
         {
             Vector2 span = to - from;
@@ -490,37 +265,21 @@ namespace Darkmatter.Gameplay
             return Vector2.Distance(point, from + span * t);
         }
 
-        private static bool HasSortingLayer(string wanted)
-        {
-            foreach (SortingLayer layer in SortingLayer.layers)
-            {
-                if (layer.name == wanted)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private static Vector2 Flat(Vector3 position) => new Vector2(position.x, position.z);
-
 
         private class Pad
         {
-            public SpeedPadZone zone;
             public Transform root;
-            public GameObject boostVisual;
-            public GameObject slowVisual;
             public SpeedPadKind kind;
             public Vector2 position;
+
+            /// <summary>Where in the rise and fall this pad starts, so a row of them does not pulse as one.</summary>
+            public float phase;
+
+            /// <summary>The prefab's own rotation, which the spin turns away from rather than replacing.</summary>
+            public Quaternion facing;
+
             public bool live;
-
-
-            public bool waitingForSpot;
-
-
-            public float readyAt;
         }
     }
 }

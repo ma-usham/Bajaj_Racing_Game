@@ -6,66 +6,54 @@ namespace Darkmatter.Gameplay.Editors
     [CustomEditor(typeof(SpeedPadSpawner))]
     public class SpeedPadSpawnerEditor : Editor
     {
-
         private const float DrawHeight = 0.12f;
-
 
         private const float PickDistance = 20f;
 
+        private static readonly Color BoostColour = new Color(0.35f, 1.00f, 0.55f);
+        private static readonly Color SlowColour = new Color(1.00f, 0.45f, 0.30f);
 
-        private const int PreviewSamples = 32;
-
-
-        private const float DefaultRadius = 8f;
-
-        private static readonly Color ZoneColour = new Color(1.00f, 0.70f, 0.15f);
-        private static readonly Color FillColour = new Color(1.00f, 0.70f, 0.15f, 0.05f);
-        private static readonly Color LandingColour = new Color(0.25f, 0.90f, 1.00f);
-
-        private SerializedProperty zones;
+        private SerializedProperty points;
 
         private void OnEnable()
         {
-            zones = serializedObject.FindProperty("zones");
+            points = serializedObject.FindProperty("points");
         }
 
         public override void OnInspectorGUI()
         {
             EditorGUILayout.HelpBox(
-                "A zone is a patch of road pads are allowed to land on: a position in world XZ " +
-                "and a radius. Which pads turn up where, and which of them are boosts, is rolled " +
-                "afresh every run and again every time one is collected.\n\n" +
-                "Shift click the road in the scene view to drop a zone, drag the middle to move " +
-                "it, drag the ring to resize it, ctrl click the middle to delete it.\n\n" +
-                "Orange is the zone. Blue dots are where pads can actually land, after each point " +
-                "is pulled back inside the road.",
+                "A point is exactly where a pad goes: a position in world XZ and which kind " +
+                "spawns there. Nothing is scattered or snapped, so what you place is what you " +
+                "race.\n\n" +
+                "Shift click the road in the scene view to drop a point, drag it to move it, " +
+                "ctrl click it to delete it. A new point copies the kind of the last one, so a " +
+                "run of boosts is quick to lay down.\n\n" +
+                "Green is a boost, orange a slowdown.",
                 MessageType.None);
 
             DrawDefaultInspector();
 
-            if (zones.arraySize == 0)
+            if (points.arraySize == 0)
             {
                 EditorGUILayout.HelpBox(
-                    "No zones yet, so this spawner will not lay any pads.",
+                    "No points yet, so this spawner will not lay any pads.",
                     MessageType.Warning);
             }
         }
 
         private void OnSceneGUI()
         {
-            SpeedPadSpawner spawner = (SpeedPadSpawner)target;
             serializedObject.Update();
-
-
 
             int controlId = GUIUtility.GetControlID(FocusType.Passive);
 
             UnityEngine.Rendering.CompareFunction wasTesting = Handles.zTest;
             Handles.zTest = UnityEngine.Rendering.CompareFunction.Always;
 
-            for (int i = 0; i < zones.arraySize; i++)
+            for (int i = 0; i < points.arraySize; i++)
             {
-                DrawZone(spawner, zones.GetArrayElementAtIndex(i));
+                DrawPoint(points.GetArrayElementAtIndex(i), i);
             }
 
             Handles.zTest = wasTesting;
@@ -74,64 +62,29 @@ namespace Darkmatter.Gameplay.Editors
             serializedObject.ApplyModifiedProperties();
         }
 
-        private void DrawZone(SpeedPadSpawner spawner, SerializedProperty zone)
+        private void DrawPoint(SerializedProperty point, int index)
         {
-            SerializedProperty position = zone.FindPropertyRelative("position");
-            SerializedProperty radius = zone.FindPropertyRelative("radius");
+            SerializedProperty position = point.FindPropertyRelative("position");
+            SerializedProperty kind = point.FindPropertyRelative("kind");
 
             Vector2 flat = position.vector2Value;
             Vector3 centre = new Vector3(flat.x, DrawHeight, flat.y);
 
+            Handles.color = kind.enumValueIndex == 0 ? BoostColour : SlowColour;
+
             if (Event.current.type == EventType.Repaint)
             {
-                Handles.color = FillColour;
-                Handles.DrawSolidDisc(centre, Vector3.up, radius.floatValue);
-                DrawLandingSpots(spawner, flat, radius.floatValue);
-            }
-
-
-            Handles.color = ZoneColour;
-            EditorGUI.BeginChangeCheck();
-            float resized = Handles.RadiusHandle(Quaternion.LookRotation(Vector3.up, Vector3.forward),
-                                                 centre, radius.floatValue);
-            if (EditorGUI.EndChangeCheck())
-            {
-                radius.floatValue = Mathf.Max(resized, 0.5f);
+                Handles.DrawWireDisc(centre, Vector3.up, HandleUtility.GetHandleSize(centre) * 0.25f);
+                Handles.Label(centre + Vector3.up * 0.5f, $"{index}  {(SpeedPadKind)kind.enumValueIndex}");
             }
 
             EditorGUI.BeginChangeCheck();
             Vector3 moved = Handles.Slider2D(centre, Vector3.up, Vector3.right, Vector3.forward,
-                                             HandleUtility.GetHandleSize(centre) * 0.06f,
+                                             HandleUtility.GetHandleSize(centre) * 0.08f,
                                              Handles.DotHandleCap, 0f);
             if (EditorGUI.EndChangeCheck())
             {
                 position.vector2Value = new Vector2(moved.x, moved.z);
-            }
-        }
-
-
-
-
-
-
-        private void DrawLandingSpots(SpeedPadSpawner spawner, Vector2 centre, float radius)
-        {
-            Handles.color = LandingColour;
-
-            for (int i = 0; i < PreviewSamples; i++)
-            {
-                float angle = i * 2.39996f;
-                float distance = radius * Mathf.Sqrt((i + 0.5f) / PreviewSamples);
-                Vector2 wanted = centre + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * distance;
-
-                if (!spawner.TryPlace(wanted, out Vector2 placed, out _))
-                {
-                    return;
-                }
-
-                Vector3 world = new Vector3(placed.x, DrawHeight, placed.y);
-                Handles.DotHandleCap(0, world, Quaternion.identity,
-                                     HandleUtility.GetHandleSize(world) * 0.02f, EventType.Repaint);
             }
         }
 
@@ -143,8 +96,6 @@ namespace Darkmatter.Gameplay.Editors
 
             if (current.type == EventType.Layout && (adding || deleting))
             {
-
-
                 HandleUtility.AddDefaultControl(controlId);
             }
 
@@ -152,8 +103,6 @@ namespace Darkmatter.Gameplay.Editors
             {
                 return;
             }
-
-
 
             if (GUIUtility.hotControl != 0)
             {
@@ -183,19 +132,16 @@ namespace Darkmatter.Gameplay.Editors
 
             Vector3 hit = ray.GetPoint(distance);
 
+            // A new point picks up the kind of the last one, so laying a run of the same kind is
+            // one modifier and a click rather than a trip back to the inspector each time.
+            int kind = points.arraySize > 0
+                ? points.GetArrayElementAtIndex(points.arraySize - 1).FindPropertyRelative("kind").enumValueIndex
+                : 0;
 
-
-
-            float radius = zones.arraySize > 0
-                ? zones.GetArrayElementAtIndex(zones.arraySize - 1).FindPropertyRelative("radius").floatValue
-                : DefaultRadius;
-
-            zones.arraySize++;
-            SerializedProperty added = zones.GetArrayElementAtIndex(zones.arraySize - 1);
+            points.arraySize++;
+            SerializedProperty added = points.GetArrayElementAtIndex(points.arraySize - 1);
             added.FindPropertyRelative("position").vector2Value = new Vector2(hit.x, hit.z);
-            added.FindPropertyRelative("radius").floatValue = Mathf.Max(radius, 0.5f);
-            added.FindPropertyRelative("count").intValue =
-                Mathf.Max(added.FindPropertyRelative("count").intValue, 1);
+            added.FindPropertyRelative("kind").enumValueIndex = kind;
         }
 
         private void DeleteNearest(Vector2 mouse)
@@ -203,9 +149,9 @@ namespace Darkmatter.Gameplay.Editors
             int nearest = -1;
             float nearestDistance = PickDistance;
 
-            for (int i = 0; i < zones.arraySize; i++)
+            for (int i = 0; i < points.arraySize; i++)
             {
-                Vector2 flat = zones.GetArrayElementAtIndex(i).FindPropertyRelative("position").vector2Value;
+                Vector2 flat = points.GetArrayElementAtIndex(i).FindPropertyRelative("position").vector2Value;
                 Vector3 world = new Vector3(flat.x, DrawHeight, flat.y);
 
                 float distance = Vector2.Distance(HandleUtility.WorldToGUIPoint(world), mouse);
@@ -218,7 +164,7 @@ namespace Darkmatter.Gameplay.Editors
 
             if (nearest >= 0)
             {
-                zones.DeleteArrayElementAtIndex(nearest);
+                points.DeleteArrayElementAtIndex(nearest);
             }
         }
     }

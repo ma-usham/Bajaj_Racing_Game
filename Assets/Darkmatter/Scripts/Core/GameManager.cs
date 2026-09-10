@@ -49,6 +49,11 @@ namespace Darkmatter.Core
         [SerializeField]
         private CameraFollow chaseCamera;
 
+        [Tooltip("Optional. Its collected pads are put back out at the top of every countdown, " +
+                 "so a retry runs the same circuit as the first go rather than a stripped one.")]
+        [SerializeField]
+        private SpeedPadSpawner speedPads;
+
         [Tooltip("Optional. The lap clock is started on GO rather than when the world appears, so " +
                  "the countdown is not on the rider's time.")]
         [SerializeField]
@@ -133,6 +138,11 @@ namespace Darkmatter.Core
             if (chaseCamera == null)
             {
                 chaseCamera = FindAnyObjectByType<CameraFollow>();
+            }
+
+            if (speedPads == null)
+            {
+                speedPads = FindAnyObjectByType<SpeedPadSpawner>();
             }
 
             if (riderSelection != null && riderSelection.RaceButton != null)
@@ -267,6 +277,11 @@ namespace Darkmatter.Core
             {
                 player.HoldOnLine();
                 player.StartEngine();
+            }
+
+            if (speedPads != null)
+            {
+                speedPads.ResetPads();
             }
 
 
