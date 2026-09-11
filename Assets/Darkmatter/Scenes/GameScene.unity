@@ -1313,7 +1313,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &220518575
 Transform:
   m_ObjectHideFlags: 0
@@ -2730,7 +2730,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 8, y: -107}
+  m_AnchoredPosition: {x: -3, y: -93}
   m_SizeDelta: {x: 271.8156, y: 425.9681}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &390056971
@@ -2753,7 +2753,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 5606521577182891132, guid: 3715bcfc44607374394036687ca8e6f0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: f3322c480e3ae9742a753e32757565a1, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -4552,8 +4552,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.04008786, y: 0.7059696, z: -0.04008786, w: 0.7059696}
-  m_LocalPosition: {x: -16, y: 3, z: 62.3}
+  m_LocalRotation: {x: 0, y: 0.7071068, z: 0, w: 0.7071068}
+  m_LocalPosition: {x: -19.499998, y: 3.997858, z: 63.120003}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -4572,10 +4572,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraFollow
   target: {fileID: 592409888}
-  yawLag: 0
-  followLag: 0.05
+  headingLag: 0.14
+  followLag: 0
+  bankAtFullLean: 6
+  lookIntoCorner: 7
+  swingWide: 0.6
+  cornerTime: 0.2
   speedFieldOfViewGain: 15
-  fieldOfViewSmoothTime: 0.2
+  speedPullBack: 1.6
+  speedDrop: 0.5
+  speedSmoothTime: 0.35
+  diveAngle: 2.5
+  diveTime: 0.25
 --- !u!1 &520695975
 GameObject:
   m_ObjectHideFlags: 0
@@ -5684,12 +5692,11 @@ MonoBehaviour:
   acceleration: 8
   brakeDeceleration: 10
   brakeFloor: 0.4
-  padResponse: 1
-  turnRateStopped: 65
-  turnRateAtTopSpeed: 120
-  steerTime: 0.5
   leanAngle: 30
-  leanTime: 0.09
+  rollTime: 0.35
+  corneringGrip: 35
+  contactHeight: 0.9
+  padResponse: 1
   wheels: {fileID: 830000002}
   wheelPlaybackAtTopSpeed: 5
   engineLoop: {fileID: 8300000, guid: c11079e88c329ea4db20aa48f82ab57a, type: 3}
@@ -5698,7 +5705,7 @@ MonoBehaviour:
   engineVolumeIdle: 0.4
   engineVolumeAtTopSpeed: 0.8
   track: {fileID: 11400000, guid: 4d81b0a67c2e49f4b8d3e5a1f062c7d9, type: 2}
-  barrierMargin: -1
+  barrierMargin: 0
   scrapeDeceleration: 5
   scrapeSpeedFloor: 0.45
   scrapeSteer: 10
@@ -6749,8 +6756,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 19, y: -114}
-  m_SizeDelta: {x: 271.8156, y: 425.9681}
+  m_AnchoredPosition: {x: -5, y: -114}
+  m_SizeDelta: {x: 292.57144, y: 438.85715}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &713325414
 MonoBehaviour:
@@ -6772,7 +6779,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: -4824584060047272903, guid: 3715bcfc44607374394036687ca8e6f0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 39fcd924d58517b45a70d6ef073f1f6d, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -41314,8 +41321,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -24, y: -117}
-  m_SizeDelta: {x: 271.8156, y: 425.9681}
+  m_AnchoredPosition: {x: 2, y: -116}
+  m_SizeDelta: {x: 292.57144, y: 438.85715}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &870050785
 MonoBehaviour:
@@ -41337,7 +41344,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 6873228147441099864, guid: 3715bcfc44607374394036687ca8e6f0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e66ac429aadafad49ba25c48afc8a42d, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -41663,8 +41670,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 145, y: 5}
-  m_SizeDelta: {x: 473.1028, y: 127.8472}
+  m_AnchoredPosition: {x: 145, y: 7}
+  m_SizeDelta: {x: 473.1028, y: 68.924}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1020833017
 MonoBehaviour:
@@ -41686,7 +41693,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Hello I am Rider. I ride the Pulsar Bike.
+  m_text: Hello I am a Cricketer. I love Riding the Bike.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -41713,12 +41720,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
+  m_fontSize: 30.4
   m_fontSizeBase: 30
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 60
   m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -44903,8 +44910,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 95, y: -52}
-  m_SizeDelta: {x: 200.018, y: 50.076996}
+  m_AnchoredPosition: {x: 145, y: -52}
+  m_SizeDelta: {x: 473.1, y: 50.077}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1504851530
 MonoBehaviour:
@@ -44926,7 +44933,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Rider 1
+  m_text: Deependra Singh Aairee
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -44953,12 +44960,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
+  m_fontSize: 37.95
   m_fontSizeBase: 50
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 0
-  m_fontSizeMax: 0
+  m_fontSizeMax: 60
   m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -44992,7 +44999,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -19.336609, w: 0}
+  m_margin: {x: 0, y: 0, z: 0.13586426, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -45836,8 +45843,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 95, y: -52}
-  m_SizeDelta: {x: 200.018, y: 50.076996}
+  m_AnchoredPosition: {x: 140.12804, y: -52}
+  m_SizeDelta: {x: 482.8439, y: 50.077}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1660188490
 MonoBehaviour:
@@ -45859,7 +45866,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Rider 1
+  m_text: Surakshya KC
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -45886,12 +45893,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
-  m_fontSizeMax: 0
+  m_fontSizeMax: 60
   m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -45925,7 +45932,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -19.336609, w: 0}
+  m_margin: {x: 0, y: 0, z: 0.72265625, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -47290,7 +47297,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Hello I am Rider. I ride the Pulsar Bike.
+  m_text: Hello I am PUBG player and a game streamer.
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -48598,8 +48605,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 95, y: -52}
-  m_SizeDelta: {x: 200.018, y: 50.076996}
+  m_AnchoredPosition: {x: 141.8, y: -52}
+  m_SizeDelta: {x: 466.69, y: 50.077}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2101432745
 MonoBehaviour:
@@ -48621,7 +48628,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Rider 1
+  m_text: CR7 Horaa
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -48648,12 +48655,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
-  m_fontSizeMax: 0
+  m_fontSizeMax: 60
   m_fontStyle: 1
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -48687,7 +48694,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -19.336609, w: 0}
+  m_margin: {x: 0, y: 0, z: 0.850708, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
