@@ -4584,6 +4584,11 @@ MonoBehaviour:
   speedSmoothTime: 0.35
   diveAngle: 2.5
   diveTime: 0.25
+  boostKick: 20
+  boostPullBack: 0.8
+  boostFade: 5
+  impactShake: 0.5
+  impactFade: 0.45
 --- !u!1 &520695975
 GameObject:
   m_ObjectHideFlags: 0
@@ -5692,8 +5697,9 @@ MonoBehaviour:
   acceleration: 8
   brakeDeceleration: 10
   brakeFloor: 0.4
+  pullUpTime: 1
   leanAngle: 30
-  rollTime: 0.35
+  rollTime: 0.38
   corneringGrip: 35
   contactHeight: 0.9
   padResponse: 1

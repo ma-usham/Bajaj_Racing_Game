@@ -1,3 +1,4 @@
+using System;
 using Darkmatter.Core;
 using UnityEngine;
 
@@ -29,6 +30,15 @@ namespace Darkmatter.Gameplay
         [Range(0f, 1f)]
         [SerializeField]
         private float brakeFloor = 0.35f;
+
+        [Tooltip("Seconds to roll from top speed to a standstill once the lap is in. The rider " +
+                 "crosses the line and shuts the throttle; they do not stop dead on it. Slower " +
+                 "speeds take proportionally less, so this is the longest it can ever take.\n\n" +
+                 "Worth keeping near the race's own results delay: the panel covers the screen a " +
+                 "second after the line, and anything past that rolls to a stop behind it.")]
+        [Min(0.01f)]
+        [SerializeField]
+        private float pullUpTime = 1.4f;
 
         [Header("Handling")]
         [Tooltip("Bank angle in degrees at full lock and top speed. A road bike runs out of tyre " +
@@ -156,6 +166,7 @@ namespace Darkmatter.Gameplay
         private float lastSpeed;
         private float padMultiplier = 1f;
         private float padRemaining;
+        private bool pullingUp;
         private bool scraping;
         private float scrapeIncidence;
         private bool engineRunning;
@@ -191,6 +202,20 @@ namespace Darkmatter.Gameplay
         public float TopSpeedNormalized => maxSpeed > 0f ? topSpeed / maxSpeed : 0f;
 
         public bool Held { get; private set; }
+
+        /// <summary>
+        /// Raised the moment a boost pad takes hold, carrying how much of a boost it is: 0 for
+        /// none, 1 for double speed. For whatever wants to make a noise about it.
+        /// </summary>
+        public event Action<float> Boosted;
+
+        /// <summary>
+        /// Raised on the frame the bike first touches the barrier, carrying how hard it went in:
+        /// square-on at top speed is 1, and a graze along the wall is near enough 0, because the
+        /// strength is the closing angle and the speed multiplied together rather than either
+        /// alone. Sliding along the barrier does not keep raising it.
+        /// </summary>
+        public event Action<float> Scraped;
 
         private void Awake()
         {
@@ -253,10 +278,29 @@ namespace Darkmatter.Gameplay
         public void HoldOnLine()
         {
             Held = true;
+            pullingUp = false;
             currentSpeed = 0f;
             lastSpeed = 0f;
             surge = 0f;
             topSpeed = 0f;
+            ClearPad();
+        }
+
+
+        /// <summary>
+        /// Shuts the throttle and rolls the bike to a halt rather than parking it where it
+        /// stands. What the end of a lap wants: the rider crosses the line and coasts to a stop,
+        /// and the engine dies away with the bike instead of being cut off mid-note. Holds the
+        /// bike on the line once it is down to nothing, so there is no separate stop to call.
+        /// </summary>
+        public void PullUp()
+        {
+            if (Held)
+            {
+                return;
+            }
+
+            pullingUp = true;
             ClearPad();
         }
 
@@ -270,6 +314,7 @@ namespace Darkmatter.Gameplay
         public void ReturnToLine()
         {
             heading = startHeading;
+            pullingUp = false;
             currentSpeed = 0f;
             lastSpeed = 0f;
             surge = 0f;
@@ -286,13 +331,18 @@ namespace Darkmatter.Gameplay
         /// <summary>A pad's temporary ceiling on top speed: above 1 to boost, below it to slow.</summary>
         public void ApplySpeedModifier(float multiplier, float duration)
         {
-            if (multiplier <= 0f || duration <= 0f)
+            if (multiplier <= 0f || duration <= 0f || pullingUp || Held)
             {
                 return;
             }
 
             padMultiplier = multiplier;
             padRemaining = duration;
+
+            if (multiplier > 1f)
+            {
+                Boosted?.Invoke(Mathf.Clamp01(multiplier - 1f));
+            }
         }
 
         private void ClearPad()
@@ -325,6 +375,24 @@ namespace Darkmatter.Gameplay
 
         private void UpdateSpeed(float deltaTime)
         {
+            // The lap is in: no throttle, no brake, no pads, just the speed running out. The
+            // engine note follows it down of its own accord, and is cut only once there is
+            // nothing left to make it with.
+            if (pullingUp)
+            {
+                currentSpeed = Mathf.MoveTowards(currentSpeed, 0f, maxSpeed / pullUpTime * deltaTime);
+                UpdateSurge(deltaTime);
+
+                if (currentSpeed <= 0f)
+                {
+                    pullingUp = false;
+                    Held = true;
+                    StopEngine();
+                }
+
+                return;
+            }
+
             if (padRemaining > 0f)
             {
                 padRemaining = Mathf.Max(padRemaining - deltaTime, 0f);
@@ -394,6 +462,13 @@ namespace Darkmatter.Gameplay
         {
             BarrierHit hit = barrier.Hold(track, position, heading, Forward,
                 barrierMargin, scrapeSteer, deltaTime);
+
+            // Read before the scrape starts bleeding speed off, so the hit reports the speed the
+            // bike arrived at rather than the speed it is left with.
+            if (hit.Scraping && !scraping)
+            {
+                Scraped?.Invoke(hit.Incidence * Mathf.Clamp01(SpeedNormalized));
+            }
 
             scraping = hit.Scraping;
             scrapeIncidence = hit.Incidence;

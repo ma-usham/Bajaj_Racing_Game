@@ -369,8 +369,7 @@ namespace Darkmatter.Core
 
             if (player != null)
             {
-                player.HoldOnLine();
-                player.StopEngine();
+                player.PullUp();
             }
 
             if (hud != null)
