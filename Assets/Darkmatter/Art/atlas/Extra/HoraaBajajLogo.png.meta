@@ -1,13 +1,10 @@
 fileFormatVersion: 2
-guid: 34a11833dc374c743a0f813ff47bfa58
+guid: 880ad0b9053205e4d9b1d20997c36022
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8482292651146034843
-    second: RabindraDhant_0
-  - first:
-      213: -5725244526074122714
-    second: RabindraDhant_1
+      213: -2175552464060649213
+    second: HoraaBajajLogo_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,12 +46,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 400
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -131,13 +128,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: RabindraDhant_0
+      name: HoraaBajajLogo_0
       rect:
         serializedVersion: 2
-        x: 48
-        y: 0
-        width: 965
-        height: 1536
+        x: 0
+        y: 29
+        width: 1001
+        height: 1503
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -146,30 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b9e3770a93827b570800000000000000
-      internalID: 8482292651146034843
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: RabindraDhant_1
-      rect:
-        serializedVersion: 2
-        x: 64
-        y: 103
-        width: 7
-        height: 10
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 62e2a1bef68db80b0800000000000000
-      internalID: -5725244526074122714
+      spriteID: 301707d7f82eec1e0800000000000000
+      internalID: -2175552464060649213
       vertices: []
       indices: 
       edges: []
@@ -178,7 +153,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -188,8 +163,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      RabindraDhant_0: 8482292651146034843
-      RabindraDhant_1: -5725244526074122714
+      HoraaBajajLogo_0: -2175552464060649213
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

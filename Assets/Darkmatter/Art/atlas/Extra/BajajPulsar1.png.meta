@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 0d5e9c7dc0edd984a80ed619a7ae5f63
+guid: 4046e167be1fe154b8e290e14fdeb64e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2552402167863210753
-    second: CricketerDeependraSingh Airee_0
+      213: -2984075100886889041
+    second: BajajPulsar1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -46,12 +46,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 200
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -128,13 +128,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CricketerDeependraSingh Airee_0
+      name: BajajPulsar1_0
       rect:
         serializedVersion: 2
-        x: 34
-        y: 0
-        width: 977
-        height: 1523
+        x: 105
+        y: 17
+        width: 290
+        height: 476
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,8 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1037c6b9f34fb6320800000000000000
-      internalID: 2552402167863210753
+      spriteID: fad8c8c818f6696d0800000000000000
+      internalID: -2984075100886889041
       vertices: []
       indices: 
       edges: []
@@ -153,7 +153,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
@@ -163,7 +163,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      CricketerDeependraSingh Airee_0: 2552402167863210753
+      BajajPulsar1_0: -2984075100886889041
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
