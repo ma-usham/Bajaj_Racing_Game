@@ -22,7 +22,7 @@ namespace Darkmatter.Gameplay
         }
 
         public BarrierHit Hold(TrackPathSO track, Vector3 position, float heading, Vector3 forward,
-            float margin, float steer, float deltaTime)
+            float margin, float steer, float faceLimit, float deltaTime)
         {
             BarrierHit hit = new BarrierHit
             {
@@ -39,6 +39,17 @@ namespace Darkmatter.Gameplay
 
             Vector2 flat = new Vector2(position.x, position.z);
             segment = track.Sample(flat, segment, out Vector2 centre, out Vector2 tangent);
+
+            // A rider on a circuit is never trying to go back the way they came, so the nose is
+            // held within a limit of the way the road runs. Kept under a right angle the bike can
+            // be pointed clean across the road but never down it the wrong way, and there is no
+            // turning round to be had however long the bars are held over.
+            if (faceLimit < 180f)
+            {
+                float road = Mathf.Atan2(tangent.x, tangent.y) * Mathf.Rad2Deg;
+                heading = road + Mathf.Clamp(Mathf.DeltaAngle(road, heading), -faceLimit, faceLimit);
+                hit.Heading = heading;
+            }
 
             Vector2 offset = flat - centre;
             float strayed = offset.magnitude;

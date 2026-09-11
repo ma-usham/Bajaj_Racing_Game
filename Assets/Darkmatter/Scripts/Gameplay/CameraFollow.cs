@@ -126,6 +126,15 @@ namespace Darkmatter.Gameplay
         [SerializeField]
         private float impactFade = 0.45f;
 
+        [Tooltip("How hard a slowdown pad knocks the camera, measured against how much speed it " +
+                 "takes away. It shakes through the same shake a barrier hit does, so at 1 a pad " +
+                 "that stopped the bike dead would shake like going square into the wall at top " +
+                 "speed, and one that takes half its speed shakes half as hard. Above 1 leans on " +
+                 "it harder than that; 0 lets a slowdown pass without a shake at all.")]
+        [Min(0f)]
+        [SerializeField]
+        private float slowdownShake = 1.5f;
+
         /// <summary>
         /// Seconds for a boost to punch on. A hit is a step and wants to arrive in one frame, but
         /// a boost is a shove in the back: straight to full in a single frame reads as the camera
@@ -199,6 +208,7 @@ namespace Darkmatter.Gameplay
             }
 
             target.Boosted += OnBoosted;
+            target.Slowed += OnSlowed;
             target.Scraped += OnScraped;
         }
 
@@ -211,6 +221,7 @@ namespace Darkmatter.Gameplay
             }
 
             target.Boosted -= OnBoosted;
+            target.Slowed -= OnSlowed;
             target.Scraped -= OnScraped;
         }
 
@@ -222,6 +233,16 @@ namespace Darkmatter.Gameplay
         private void OnBoosted(float strength)
         {
             boostCharge = Mathf.Max(boostCharge, Mathf.Clamp01(strength));
+        }
+
+
+        /// <summary>
+        /// A slowdown pad knocks the camera through the same shake the barrier does. They are the
+        /// same thing to the rider either way: something outside the bike taking speed off it.
+        /// </summary>
+        private void OnSlowed(float strength)
+        {
+            impact = Mathf.Max(impact, Mathf.Clamp01(slowdownShake * strength));
         }
 
 

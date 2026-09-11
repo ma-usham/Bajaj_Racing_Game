@@ -1,25 +1,10 @@
 fileFormatVersion: 2
-guid: 3715bcfc44607374394036687ca8e6f0
+guid: 263cc0b1894107044b9b2cfd5c9eda24
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 6873228147441099864
-    second: CharacterImage_0
-  - first:
-      213: 5606521577182891132
-    second: CharacterImage_1
-  - first:
-      213: 7332148660192094262
-    second: CharacterImage_2
-  - first:
-      213: -4824584060047272903
-    second: CharacterImage_3
-  - first:
-      213: 5385082464784752007
-    second: CharacterImage_4
-  - first:
-      213: -3569622366394548605
-    second: CharacterImage_5
+      213: -261272547336355609
+    second: CR7Horaa Playing game_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -143,67 +128,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CharacterImage_0
+      name: CR7Horaa Playing game_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 596
-        height: 934
+        width: 999
+        height: 1527
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 854617c859c926f50800000000000000
-      internalID: 6873228147441099864
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: CharacterImage_1
-      rect:
-        serializedVersion: 2
-        x: 607
-        y: 15
-        width: 519
-        height: 918
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: c7c8c897bad5ecd40800000000000000
-      internalID: 5606521577182891132
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: CharacterImage_3
-      rect:
-        serializedVersion: 2
-        x: 1155
-        y: 13
-        width: 512
-        height: 899
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 934dedfeb52ab0db0800000000000000
-      internalID: -4824584060047272903
+      spriteID: 7e08472a006cf5cf0800000000000000
+      internalID: -261272547336355609
       vertices: []
       indices: 
       edges: []
@@ -212,7 +153,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 740c8f09acb718a42bf890d1e1863fa1
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -222,12 +163,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      CharacterImage_0: 6873228147441099864
-      CharacterImage_1: 5606521577182891132
-      CharacterImage_2: 7332148660192094262
-      CharacterImage_3: -4824584060047272903
-      CharacterImage_4: 5385082464784752007
-      CharacterImage_5: -3569622366394548605
+      CR7Horaa Playing game_0: -261272547336355609
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

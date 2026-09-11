@@ -1,16 +1,10 @@
 fileFormatVersion: 2
-guid: 39fcd924d58517b45a70d6ef073f1f6d
+guid: 0d5e9c7dc0edd984a80ed619a7ae5f63
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8326550607022193155
-    second: Surakshya_0
-  - first:
-      213: 2329189044906247171
-    second: Surakshya_1
-  - first:
-      213: 7298962036520549537
-    second: Surakshya_2
+      213: 2552402167863210753
+    second: CricketerDeependraSingh Airee_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -52,12 +46,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 350
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -134,13 +128,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Surakshya_0
+      name: CricketerDeependraSingh Airee_0
       rect:
         serializedVersion: 2
-        x: 40
+        x: 34
         y: 0
-        width: 973
-        height: 1522
+        width: 977
+        height: 1523
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -149,52 +143,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 30afedf39a9dd8370800000000000000
-      internalID: 8326550607022193155
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Surakshya_1
-      rect:
-        serializedVersion: 2
-        x: 112
-        y: 1149
-        width: 19
-        height: 49
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3044e548811f25020800000000000000
-      internalID: 2329189044906247171
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Surakshya_2
-      rect:
-        serializedVersion: 2
-        x: 184
-        y: 263
-        width: 7
-        height: 8
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 1ac7ed7fc4f1b4560800000000000000
-      internalID: 7298962036520549537
+      spriteID: 1037c6b9f34fb6320800000000000000
+      internalID: 2552402167863210753
       vertices: []
       indices: 
       edges: []
@@ -203,7 +153,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -213,9 +163,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Surakshya_0: 8326550607022193155
-      Surakshya_1: 2329189044906247171
-      Surakshya_2: 7298962036520549537
+      CricketerDeependraSingh Airee_0: 2552402167863210753
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -147,6 +147,16 @@ namespace Darkmatter.Gameplay
         [SerializeField]
         private float scrapeSteer = 150f;
 
+        [Tooltip("How far the bike may point away from the way the road runs, in degrees. Under " +
+                 "a right angle the bike can be turned clean across the road but never back down " +
+                 "it, so the rider cannot turn round and ride the circuit backwards however long " +
+                 "they hold the bars over.\n\n" +
+                 "180 lets the bike face wherever it likes. Small numbers put it increasingly on " +
+                 "rails, and 0 welds the nose to the centreline.")]
+        [Range(0f, 180f)]
+        [SerializeField]
+        private float faceLimit = 80f;
+
         /// <summary>
         /// Below this the bike is not moving enough for a corner to mean anything. Only there to
         /// keep the turn rate's division honest on the frames either side of a standstill.
@@ -208,6 +218,12 @@ namespace Darkmatter.Gameplay
         /// none, 1 for double speed. For whatever wants to make a noise about it.
         /// </summary>
         public event Action<float> Boosted;
+
+        /// <summary>
+        /// Raised the moment a slowdown pad takes hold, carrying how much of the bike's speed it
+        /// takes away: 0 for none, 1 for all of it.
+        /// </summary>
+        public event Action<float> Slowed;
 
         /// <summary>
         /// Raised on the frame the bike first touches the barrier, carrying how hard it went in:
@@ -343,6 +359,10 @@ namespace Darkmatter.Gameplay
             {
                 Boosted?.Invoke(Mathf.Clamp01(multiplier - 1f));
             }
+            else if (multiplier < 1f)
+            {
+                Slowed?.Invoke(Mathf.Clamp01(1f - multiplier));
+            }
         }
 
         private void ClearPad()
@@ -461,7 +481,7 @@ namespace Darkmatter.Gameplay
         private Vector3 KeepOnRoad(Vector3 position, float deltaTime)
         {
             BarrierHit hit = barrier.Hold(track, position, heading, Forward,
-                barrierMargin, scrapeSteer, deltaTime);
+                barrierMargin, scrapeSteer, faceLimit, deltaTime);
 
             // Read before the scrape starts bleeding speed off, so the hit reports the speed the
             // bike arrived at rather than the speed it is left with.
@@ -484,8 +504,8 @@ namespace Darkmatter.Gameplay
         /// </summary>
         private void ApplyPose()
         {
-            Quaternion roll = Quaternion.Euler(0f, 0f, -lean);
             Quaternion nose = Quaternion.Euler(0f, heading, 0f);
+            Quaternion roll = Quaternion.Euler(0f, 0f, -lean);
 
             transform.SetPositionAndRotation(
                 ride - Vector3.up * contactHeight + nose * roll * Vector3.up * contactHeight,

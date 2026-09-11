@@ -1313,7 +1313,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &220518575
 Transform:
   m_ObjectHideFlags: 0
@@ -1502,15 +1502,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.19
+      value: -0.18999872
       objectReference: {fileID: 0}
     - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.68
+      value: -2.6799805
       objectReference: {fileID: 0}
     - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.4
+      value: 0.40002444
       objectReference: {fileID: 0}
     - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1522,11 +1522,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 5870400329536761144, guid: 40a08865e12e93d4a8954444c54c525a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -2730,8 +2730,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3, y: -93}
-  m_SizeDelta: {x: 271.8156, y: 425.9681}
+  m_AnchoredPosition: {x: -26.05, y: -91.738}
+  m_SizeDelta: {x: 258.1, y: 404.4754}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &390056971
 MonoBehaviour:
@@ -2753,7 +2753,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: f3322c480e3ae9742a753e32757565a1, type: 3}
+  m_Sprite: {fileID: -261272547336355609, guid: 263cc0b1894107044b9b2cfd5c9eda24, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -4526,7 +4526,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 50
+  field of view: 45
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -4585,10 +4585,11 @@ MonoBehaviour:
   diveAngle: 2.5
   diveTime: 0.25
   boostKick: 20
-  boostPullBack: 0.8
+  boostPullBack: 1
   boostFade: 5
   impactShake: 0.5
   impactFade: 0.45
+  slowdownShake: 3
 --- !u!1 &520695975
 GameObject:
   m_ObjectHideFlags: 0
@@ -5657,7 +5658,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 2.56, y: 2.56}
+  m_Size: {x: 0.46, y: 0.21}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -5715,6 +5716,7 @@ MonoBehaviour:
   scrapeDeceleration: 5
   scrapeSpeedFloor: 0.45
   scrapeSteer: 10
+  faceLimit: 80
 --- !u!1 &609158636
 GameObject:
   m_ObjectHideFlags: 0
@@ -6515,7 +6517,6 @@ MonoBehaviour:
   displayTopSpeed: 100
   speedSuffix: km/h
   lapTimeLabel: {fileID: 550023953}
-  wrongWayLabel: {fileID: 654211315}
 --- !u!1 &703907897
 GameObject:
   m_ObjectHideFlags: 0
@@ -6762,8 +6763,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -5, y: -114}
-  m_SizeDelta: {x: 292.57144, y: 438.85715}
+  m_AnchoredPosition: {x: 9, y: -118.89}
+  m_SizeDelta: {x: 305.8583, y: 458.7874}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &713325414
 MonoBehaviour:
@@ -6785,7 +6786,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 39fcd924d58517b45a70d6ef073f1f6d, type: 3}
+  m_Sprite: {fileID: 8482292651146034843, guid: 34a11833dc374c743a0f813ff47bfa58, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -41327,7 +41328,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 2, y: -116}
+  m_AnchoredPosition: {x: 0, y: -114}
   m_SizeDelta: {x: 292.57144, y: 438.85715}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &870050785
@@ -41350,7 +41351,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: e66ac429aadafad49ba25c48afc8a42d, type: 3}
+  m_Sprite: {fileID: 2552402167863210753, guid: 0d5e9c7dc0edd984a80ed619a7ae5f63, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -48074,11 +48075,13 @@ MonoBehaviour:
     second: {x: -67.34148, y: 12.41077}
   - first: {x: -57.95519, y: 62.419876}
     second: {x: -57.065525, y: 55.740578}
-  padHeight: 1.6
+  padHeight: 1.4
   bobHeight: 0.35
   bobSpeed: 0.6
   spinSpeed: 0
-  collectRadius: 2
+  view: {fileID: 0}
+  faceCamera: 1
+  collectRadius: 2.5
   boost:
     prefab: {fileID: 2568426280559568338, guid: 73253cce4b19a1841b475571518bb16d, type: 3}
     speedMultiplier: 1.5

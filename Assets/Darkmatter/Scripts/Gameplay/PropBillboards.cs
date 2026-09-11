@@ -42,11 +42,17 @@ namespace Darkmatter.Gameplay
 
         private const float FullSwing = 179.9f;
 
+        /// <summary>
+        /// Square of how near the camera may stand over a prop before there is no longer a
+        /// direction to turn it. Left as it was rather than snapped to nothing.
+        /// </summary>
+        private const float Overhead = 1e-4f;
+
         private Transform[] props;
         private float[] resting;
         private float[] swings;
         private bool[] free;
-        private float lastYaw = float.NaN;
+        private Vector3 lastEye = Vector3.positiveInfinity;
 
         private void Awake()
         {
@@ -106,21 +112,29 @@ namespace Darkmatter.Gameplay
                 free[i] = swings[i] >= FullSwing;
             }
 
-            lastYaw = float.NaN;
+            lastEye = Vector3.positiveInfinity;
         }
 
+        /// <summary>
+        /// Turned to where the camera is, not to the way it is looking. Lined up with the lens
+        /// instead, every prop takes the same yaw, and since the camera's yaw follows the road a
+        /// prop out at the side of the frame ends up square to the centreline rather than square
+        /// to the rider. The further off the middle of the screen it sits the more edge it shows,
+        /// which is exactly where a billboard is most obviously a flat card.
+        ///
+        /// Nothing turns while the camera only turns: where a prop has to point depends on where
+        /// the camera is and not on which way it faces, so a camera spinning on the spot leaves
+        /// every prop alone.
+        /// </summary>
         private void LateUpdate()
         {
-            float cameraYaw = view.transform.eulerAngles.y;
-            if (cameraYaw == lastYaw)
+            Vector3 eye = view.transform.position;
+            if (eye == lastEye)
             {
                 return;
             }
 
-            lastYaw = cameraYaw;
-
-
-            Quaternion square = Quaternion.Euler(0f, cameraYaw, 0f);
+            lastEye = eye;
 
             for (int i = 0; i < props.Length; i++)
             {
@@ -130,13 +144,23 @@ namespace Darkmatter.Gameplay
                     continue;
                 }
 
-                if (free[i])
+                // Away from the camera rather than towards it, because a sprite's face is its own
+                // local back.
+                Vector3 away = prop.position - eye;
+                if (away.x * away.x + away.z * away.z < Overhead)
                 {
-                    prop.rotation = square;
                     continue;
                 }
 
-                float lean = Mathf.Clamp(Mathf.DeltaAngle(resting[i], cameraYaw), -swings[i], swings[i]);
+                float facing = Mathf.Atan2(away.x, away.z) * Mathf.Rad2Deg;
+
+                if (free[i])
+                {
+                    prop.rotation = Quaternion.Euler(0f, facing, 0f);
+                    continue;
+                }
+
+                float lean = Mathf.Clamp(Mathf.DeltaAngle(resting[i], facing), -swings[i], swings[i]);
                 prop.rotation = Quaternion.Euler(0f, resting[i] + lean, 0f);
             }
         }

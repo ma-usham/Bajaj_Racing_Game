@@ -1,13 +1,13 @@
 fileFormatVersion: 2
-guid: f3322c480e3ae9742a753e32757565a1
+guid: 34a11833dc374c743a0f813ff47bfa58
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5833478946758562564
-    second: Cr7Horaa_0
+      213: 8482292651146034843
+    second: RabindraDhant_0
   - first:
-      213: 3700814455689192378
-    second: Cr7Horaa_1
+      213: -5725244526074122714
+    second: RabindraDhant_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,12 +49,12 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 350
+  spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -131,13 +131,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Cr7Horaa_0
+      name: RabindraDhant_0
       rect:
         serializedVersion: 2
-        x: 0
+        x: 48
         y: 0
-        width: 1007
-        height: 1501
+        width: 965
+        height: 1536
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -146,20 +146,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 403934ae13ea4f050800000000000000
-      internalID: 5833478946758562564
+      spriteID: b9e3770a93827b570800000000000000
+      internalID: 8482292651146034843
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: Cr7Horaa_1
+      name: RabindraDhant_1
       rect:
         serializedVersion: 2
-        x: 990
-        y: 155
+        x: 64
+        y: 103
         width: 7
-        height: 15
+        height: 10
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -168,8 +168,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ab32cf2c32feb5330800000000000000
-      internalID: 3700814455689192378
+      spriteID: 62e2a1bef68db80b0800000000000000
+      internalID: -5725244526074122714
       vertices: []
       indices: 
       edges: []
@@ -178,7 +178,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 5e97eb03825dee720800000000000000
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -188,8 +188,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Cr7Horaa_0: 5833478946758562564
-      Cr7Horaa_1: 3700814455689192378
+      RabindraDhant_0: 8482292651146034843
+      RabindraDhant_1: -5725244526074122714
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -82,10 +82,25 @@ namespace Darkmatter.Gameplay
         [SerializeField]
         private float bobSpeed = 0.6f;
 
-        [Tooltip("Degrees per second the pad turns on the spot. 0 leaves it facing the way the " +
-                 "prefab was built.")]
+        [Tooltip("Degrees per second the pad turns on the spot. 0 leaves it still.\n\n" +
+                 "With Face Camera on it spins about the line to the lens, so it turns like a " +
+                 "coin held up to the rider and stays readable the whole way round. With it off " +
+                 "it spins about the world's up, and shows its edge twice a turn.")]
         [SerializeField]
         private float spinSpeed = 0f;
+
+        [Header("Facing")]
+        [Tooltip("The camera the pads turn to. Left empty, the main camera is used.")]
+        [SerializeField]
+        private Camera view;
+
+        [Tooltip("Turns every pad to face the camera. Without it a pad keeps the one direction " +
+                 "its prefab was built facing, and thins away to an edge as the bike comes at it " +
+                 "from anywhere else on the circuit.\n\n" +
+                 "Aimed at where the camera is, not lined up with the way it looks, so a pad off " +
+                 "at the side of the screen is square to the rider rather than square to the road.")]
+        [SerializeField]
+        private bool faceCamera = true;
 
         [Header("Pickup")]
         [Tooltip("How near the bike has to pass for a pad to count as driven over, in world " +
@@ -110,6 +125,12 @@ namespace Darkmatter.Gameplay
             duration = 2f,
         };
 
+        /// <summary>
+        /// Square of how near the camera may stand over a pad before there is no longer a
+        /// direction to turn it. Left as it was rather than snapped to nothing.
+        /// </summary>
+        private const float Overhead = 1e-4f;
+
         private Pad[] pads;
         private Transform container;
         private Vector2 lastBike;
@@ -121,6 +142,19 @@ namespace Darkmatter.Gameplay
                 Debug.LogError($"{name}: no PlayerController, so no pad can ever be collected.", this);
                 enabled = false;
                 return;
+            }
+
+            if (faceCamera && view == null)
+            {
+                view = Camera.main;
+
+                if (view == null)
+                {
+                    Debug.LogWarning($"{name}: no camera to turn the pads to, and no main camera " +
+                                     "to fall back on. They will keep the one direction their " +
+                                     "prefabs were built facing.", this);
+                    faceCamera = false;
+                }
             }
 
             lastBike = Flat(player.transform.position);
@@ -230,6 +264,16 @@ namespace Darkmatter.Gameplay
             GameObject built = Instantiate(settings.prefab, parent, false);
             built.name = label;
             built.transform.localPosition = Vector3.zero;
+
+            // The prefab was built facing one way, and that way is about to be decided afresh
+            // every frame. Left in, it would be added on top of the facing and turn every pad
+            // edge on. Only its yaw goes; any tilt it was drawn with is its own business.
+            if (faceCamera)
+            {
+                Vector3 angles = built.transform.localEulerAngles;
+                built.transform.localEulerAngles = new Vector3(angles.x, 0f, angles.z);
+            }
+
             return built;
         }
 
@@ -264,8 +308,9 @@ namespace Darkmatter.Gameplay
         }
 
         /// <summary>
-        /// Rides the pad up and down, and turns it if asked. Only the pad moves: where it counts
-        /// as being is the spot it was authored at.
+        /// Rides the pad up and down, and turns it to the rider. Only the pad moves: where it
+        /// counts as being is the spot it was authored at, so how it is turned never changes how
+        /// easy it is to collect.
         /// </summary>
         private void Hover(Pad pad, float now)
         {
@@ -275,10 +320,32 @@ namespace Darkmatter.Gameplay
                 pad.root.position = new Vector3(pad.position.x, padHeight + swing, pad.position.y);
             }
 
-            if (spinSpeed != 0f)
+            if (!faceCamera)
             {
-                pad.root.rotation = Quaternion.AngleAxis(now * spinSpeed, Vector3.up);
+                if (spinSpeed != 0f)
+                {
+                    pad.root.rotation = Quaternion.AngleAxis(now * spinSpeed, Vector3.up);
+                }
+
+                return;
             }
+
+            // Away from the camera rather than towards it, because a sprite's face is its own
+            // local back. Aimed at where the camera stands and not lined up with the way it
+            // looks, or a pad off at the side of the screen shows its edge.
+            Vector3 away = pad.root.position - view.transform.position;
+            if (away.x * away.x + away.z * away.z < Overhead)
+            {
+                return;
+            }
+
+            Quaternion facing = Quaternion.Euler(0f, Mathf.Atan2(away.x, away.z) * Mathf.Rad2Deg, 0f);
+
+            // Spun about the line to the camera rather than about the world's up, so it turns on
+            // the spot in front of the rider instead of turning its edge to them twice a lap.
+            pad.root.rotation = spinSpeed != 0f
+                ? facing * Quaternion.AngleAxis(now * spinSpeed, Vector3.forward)
+                : facing;
         }
 
         private void Collect(Pad pad)
